@@ -7,14 +7,14 @@
     <framework targetVersion="4.5" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="ChroSearch.exe.manifest" size="3962">
+    <dependentAssembly dependencyType="install" codebase="ChroSearch.exe.manifest" size="3961">
       <assemblyIdentity name="ChroSearch.exe" version="1.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>FEbplnUVGi7dK9lZc4r5Q2g8Nj7f9wgOfXKswJ6pmIg=</dsig:DigestValue>
+        <dsig:DigestValue>fkTDkDzy9mU+KM7afXN0T6MpoI8sPjvv5DcE3tldu60=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -1,11 +1,13 @@
 ﻿'Author contact: jared.andrews07@gmail.com
+Imports System.IO.File
 Public Class MainForm
 
     'Creates instance of HelpForm so multiple can't be created by clicking help multiple times
-    'Create global instances of the datatables
+    'Create global instances of the datatables and line count of the input file
     Dim helpForm As New HelpForm
-    Dim inputTable As DataTable
+    Dim searchTable As DataTable
     Dim outputTable As DataTable
+    Dim lineCount As Integer
 
     'Allows user to drag and drop input file into program
     Private Sub MainForm_DragDrop(sender As System.Object, e As System.Windows.Forms.DragEventArgs) Handles Me.DragDrop
@@ -15,7 +17,16 @@ Public Class MainForm
         datasrcTxtB.Text = filePath
 
         If fileExt = ".txt" Then 'Checks to be sure the input is a .txt file
-            inputTable = makeInputDataTable(filePath)
+            'searchTable = makeInputDataTable(filePath)
+            lineCount = 0
+            Dim reader As New IO.StreamReader(filePath)
+            Dim watch As Stopwatch = Stopwatch.StartNew()
+            While reader.ReadLine() <> Nothing
+                lineCount += 1
+            End While
+            watch.Stop()
+            MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
+                   + watch.Elapsed.Seconds().ToString() + " seconds.")
         Else
             MsgBox("Only .txt files are accepted.") 'Tells user only .txt files are accepted for input if they try to use different file type
         End If
@@ -29,23 +40,34 @@ Public Class MainForm
         End If
     End Sub
 
+    'Imports file for use as input by program when user uses File -> Import path. Also displays file path 
+    'in datasrcTxtB for reference.
+    Private Sub openMenuItem_Click(sender As Object, e As EventArgs) Handles openMenuItem.Click
+        Dim filePath As String = getFileImport() 'Returns the file path
+
+        If filePath <> "" Then
+            datasrcTxtB.Text = filePath
+            searchTable = makeSearchDataTable(filePath)
+            lineCount = 0
+            Dim reader As New IO.StreamReader(filePath)
+            Dim watch As Stopwatch = Stopwatch.StartNew()
+            While reader.ReadLine() <> Nothing
+                lineCount += 1
+            End While
+            watch.Stop()
+            lineCount -= 1
+            MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
+                + watch.Elapsed.Seconds().ToString() + " seconds.")
+        End If
+
+    End Sub
+
     'Shows "About" information from the help menu.
     Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
         MsgBox("ChroSearch Developed by the Payton Lab", , "About ChroSearch")
     End Sub
 
-    'Imports file for use as input by program when user uses File -> Import path. Also displays file path 
-    'in datasrcTxtB for reference.
-    Private Sub openMenuItem_Click(sender As Object, e As EventArgs) Handles openMenuItem.Click
-        Dim strFileName As String = getFileImport() 'Returns the file path
 
-        If strFileName <> "" Then 'Makes it so no error is thrown if cancel is clicked in the file select window
-            datasrcTxtB.Text = strFileName
-
-            inputTable = makeInputDataTable(strFileName) 'Creates a new data table for the file and populates columns
-
-        End If
-    End Sub
 
 
     'Saves output when user uses File -> Export path.
@@ -131,30 +153,23 @@ Public Class MainForm
         Dim geneParam As String
         Dim chromParam As String
         Dim result() As DataRow
-        Dim progMax As Integer
+        Dim searchHits As Integer
 
-        outputTable = inputTable.Clone()
-        outputTable.Rows.Clear()
-        progBar.Value = 0
-        runLabel.Text = Nothing
+        searchProgBar.Value = 0
+        searchProgLabel.Text = Nothing
 
         If mmpidTxtB.Text <> "" Then
 
             mmpidParam = Convert.ToInt64(mmpidTxtB.Text)
-            result = inputTable.Select("MMPID='" & mmpidParam & "'")
-            progMax = result.Count()
-            progBar.Maximum = progMax
-            progBar.Visible = True
-            runLabel.Visible = True
+            result = searchTable.Select("MMPID='" & mmpidParam & "'")
+            searchProgBar.Maximum = lineCount
+            searchProgBar.Visible = True
+            searchProgLabel.Visible = True
             For Each row As DataRow In result
-                outputTable.ImportRow(row)
-                progBar.Value += 1
-                runLabel.Text = "Running..." + (Int(progBar.Value * 100 / progBar.Maximum)).ToString() + "%"
-                For i = 0 To 100
-
-                Next
+                searchTable.ImportRow(row)
+                searchProgBar.Value += 1
+                searchProgLabel.Text = "Running..." + (Int(searchProgBar.Value * 100 / searchProgBar.Maximum)).ToString() + "%"
             Next
-            outputDataGridView.DataSource = outputTable
             searchTxtB.Text = outputTable.Rows.Count().ToString()
         Else
             MsgBox("Please input a search parameter!", MsgBoxStyle.OkOnly, "No search parameters entered!")
@@ -216,4 +231,5 @@ Public Class MainForm
         MsgBox("Saved to: " + strFileName)
     End Sub
 
+    
 End Class

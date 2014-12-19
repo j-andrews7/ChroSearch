@@ -19,11 +19,11 @@
     End Function
 
     'Creates new input datatable when a file is imported
-    Public Function makeInputDataTable(fileName As String) As DataTable
-        Dim inputTable As New DataTable
+    Public Function makeSearchDataTable(fileName As String) As DataTable
+        Dim searchTable As New DataTable
 
         ' Clear all previous data
-        inputTable.Clear()
+        searchTable.Clear()
 
         Try
 
@@ -46,16 +46,13 @@
                 'made to be determined. This took way longer to figure out that it should have.
                 If i = 0 Then
                     Do While colCount > 0
-                        inputTable.Columns.Add(arrayOfValues.ElementAt(j - colCount))
+                        searchTable.Columns.Add(arrayOfValues.ElementAt(j - colCount))
                         colCount = colCount - 1
                     Loop
                     i = 1
                 End If
 
-                inputTable.Rows.Add(arrayOfValues) 'Adds a row with the elements in the array
-
             Loop
-            inputTable.Rows.RemoveAt(0) 'Fixes additional row of headers being displayed in inputTable
 
             textReader.Close()
 
@@ -63,7 +60,7 @@
             MsgBox(ex.Message)
         End Try
 
-        Return inputTable
+        Return searchTable
     End Function
 
     
