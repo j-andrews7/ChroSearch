@@ -15,9 +15,7 @@ Public Class MainForm
         datasrcTxtB.Text = filePath
 
         If fileExt = ".txt" Then 'Checks to be sure the input is a .txt file
-            inputDataGridView.Columns.Clear()
             inputTable = makeInputDataTable(filePath)
-            inputDataGridView.DataSource = inputTable
         Else
             MsgBox("Only .txt files are accepted.") 'Tells user only .txt files are accepted for input if they try to use different file type
         End If
@@ -43,9 +41,9 @@ Public Class MainForm
 
         If strFileName <> "" Then 'Makes it so no error is thrown if cancel is clicked in the file select window
             datasrcTxtB.Text = strFileName
-            inputDataGridView.Columns.Clear() 'Clears the input data grid view
-            'inputTable = makeInputDataTable(strFileName) 'Creates a new data table for the file and populates
-            'inputDataGridView.DataSource = inputTable 'the inputDataGridView with it.
+
+            inputTable = makeInputDataTable(strFileName) 'Creates a new data table for the file and populates columns
+
         End If
     End Sub
 
@@ -135,7 +133,6 @@ Public Class MainForm
         Dim result() As DataRow
         Dim progMax As Integer
 
-        outputDataGridView.DataSource = Nothing
         outputTable = inputTable.Clone()
         outputTable.Rows.Clear()
         progBar.Value = 0

@@ -45,15 +45,11 @@ Partial Class MainForm
         Me.endTxtB = New System.Windows.Forms.TextBox()
         Me.mmpidTxtB = New System.Windows.Forms.TextBox()
         Me.mmpidLabel = New System.Windows.Forms.Label()
-        Me.inputLabel = New System.Windows.Forms.Label()
         Me.resetTT = New System.Windows.Forms.ToolTip(Me.components)
         Me.datasrcTxtB = New System.Windows.Forms.TextBox()
         Me.datasrcLabel = New System.Windows.Forms.Label()
         Me.importFD = New System.Windows.Forms.OpenFileDialog()
         Me.exportFD = New System.Windows.Forms.SaveFileDialog()
-        Me.outputLabel = New System.Windows.Forms.Label()
-        Me.outputDataGridView = New System.Windows.Forms.DataGridView()
-        Me.inputDataGridView = New System.Windows.Forms.DataGridView()
         Me.progBar = New System.Windows.Forms.ProgressBar()
         Me.runLabel = New System.Windows.Forms.Label()
         Me.exportBtn = New System.Windows.Forms.Button()
@@ -61,8 +57,6 @@ Partial Class MainForm
         Me.searchTxtB = New System.Windows.Forms.TextBox()
         Me.menuStrip.SuspendLayout()
         Me.paramGrpB.SuspendLayout()
-        CType(Me.outputDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.inputDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'searchBtn
@@ -181,9 +175,9 @@ Partial Class MainForm
         Me.paramGrpB.Controls.Add(Me.chromLabel)
         Me.paramGrpB.Controls.Add(Me.endLabel)
         Me.paramGrpB.Controls.Add(Me.startLabel)
-        Me.paramGrpB.Location = New System.Drawing.Point(418, 60)
+        Me.paramGrpB.Location = New System.Drawing.Point(12, 60)
         Me.paramGrpB.Name = "paramGrpB"
-        Me.paramGrpB.Size = New System.Drawing.Size(200, 340)
+        Me.paramGrpB.Size = New System.Drawing.Size(631, 340)
         Me.paramGrpB.TabIndex = 6
         Me.paramGrpB.TabStop = False
         Me.paramGrpB.Text = "Search Parameters"
@@ -241,15 +235,6 @@ Partial Class MainForm
         Me.mmpidLabel.TabIndex = 5
         Me.mmpidLabel.Text = "MMPID"
         '
-        'inputLabel
-        '
-        Me.inputLabel.AutoSize = True
-        Me.inputLabel.Location = New System.Drawing.Point(9, 60)
-        Me.inputLabel.Name = "inputLabel"
-        Me.inputLabel.Size = New System.Drawing.Size(31, 13)
-        Me.inputLabel.TabIndex = 8
-        Me.inputLabel.Text = "Input"
-        '
         'datasrcTxtB
         '
         Me.datasrcTxtB.Location = New System.Drawing.Point(79, 27)
@@ -266,39 +251,6 @@ Partial Class MainForm
         Me.datasrcLabel.Size = New System.Drawing.Size(70, 13)
         Me.datasrcLabel.TabIndex = 11
         Me.datasrcLabel.Text = "Data Source:"
-        '
-        'outputLabel
-        '
-        Me.outputLabel.AutoSize = True
-        Me.outputLabel.Location = New System.Drawing.Point(621, 60)
-        Me.outputLabel.Name = "outputLabel"
-        Me.outputLabel.Size = New System.Drawing.Size(39, 13)
-        Me.outputLabel.TabIndex = 14
-        Me.outputLabel.Text = "Output"
-        '
-        'outputDataGridView
-        '
-        Me.outputDataGridView.AllowUserToAddRows = False
-        Me.outputDataGridView.AllowUserToDeleteRows = False
-        Me.outputDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.outputDataGridView.Location = New System.Drawing.Point(624, 76)
-        Me.outputDataGridView.Name = "outputDataGridView"
-        Me.outputDataGridView.ReadOnly = True
-        Me.outputDataGridView.RowHeadersVisible = False
-        Me.outputDataGridView.Size = New System.Drawing.Size(403, 324)
-        Me.outputDataGridView.TabIndex = 16
-        '
-        'inputDataGridView
-        '
-        Me.inputDataGridView.AllowUserToAddRows = False
-        Me.inputDataGridView.AllowUserToDeleteRows = False
-        Me.inputDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.inputDataGridView.Location = New System.Drawing.Point(12, 76)
-        Me.inputDataGridView.Name = "inputDataGridView"
-        Me.inputDataGridView.ReadOnly = True
-        Me.inputDataGridView.RowHeadersVisible = False
-        Me.inputDataGridView.Size = New System.Drawing.Size(400, 324)
-        Me.inputDataGridView.TabIndex = 17
         '
         'progBar
         '
@@ -357,12 +309,8 @@ Partial Class MainForm
         Me.Controls.Add(Me.exportBtn)
         Me.Controls.Add(Me.runLabel)
         Me.Controls.Add(Me.progBar)
-        Me.Controls.Add(Me.inputDataGridView)
-        Me.Controls.Add(Me.outputDataGridView)
-        Me.Controls.Add(Me.outputLabel)
         Me.Controls.Add(Me.datasrcLabel)
         Me.Controls.Add(Me.datasrcTxtB)
-        Me.Controls.Add(Me.inputLabel)
         Me.Controls.Add(Me.paramGrpB)
         Me.Controls.Add(Me.menuStrip)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
@@ -375,8 +323,6 @@ Partial Class MainForm
         Me.menuStrip.PerformLayout()
         Me.paramGrpB.ResumeLayout(False)
         Me.paramGrpB.PerformLayout()
-        CType(Me.outputDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.inputDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -399,16 +345,12 @@ Partial Class MainForm
     Friend WithEvents endTxtB As System.Windows.Forms.TextBox
     Friend WithEvents mmpidTxtB As System.Windows.Forms.TextBox
     Friend WithEvents mmpidLabel As System.Windows.Forms.Label
-    Friend WithEvents inputLabel As System.Windows.Forms.Label
     Friend WithEvents resetTT As System.Windows.Forms.ToolTip
     Friend WithEvents datasrcTxtB As System.Windows.Forms.TextBox
     Friend WithEvents datasrcLabel As System.Windows.Forms.Label
     Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents importFD As System.Windows.Forms.OpenFileDialog
     Friend WithEvents exportFD As System.Windows.Forms.SaveFileDialog
-    Friend WithEvents outputLabel As System.Windows.Forms.Label
-    Friend WithEvents outputDataGridView As System.Windows.Forms.DataGridView
-    Friend WithEvents inputDataGridView As System.Windows.Forms.DataGridView
     Friend WithEvents geneTxtB As System.Windows.Forms.TextBox
     Friend WithEvents geneLabel As System.Windows.Forms.Label
     Friend WithEvents progBar As System.Windows.Forms.ProgressBar

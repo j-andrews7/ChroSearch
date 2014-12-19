@@ -67,11 +67,6 @@
       <ProjName>ChrSearcher</ProjName>
     </ProjBinary>
   </Binaries>
-  <Reports>
-    <Report>
-      <Path>ChroSearch141218.vsp</Path>
-    </Report>
-  </Reports>
   <Launches>
     <ProjBinary>
       <Path>:PB:{F81BC46B-5989-4858-971A-1DEA61F586B8}|ChrSearcher\ChrSearcher.vbproj</Path>
