@@ -127,7 +127,6 @@ Public Class MainForm
 
     'Clears the search parameters when the reset button is clicked.
     Private Sub resetBtn_Click(sender As Object, e As EventArgs) Handles resetBtn.Click
-        chromTxtB.Text = ""
         startTxtB.Text = ""
         endTxtB.Text = ""
         mmpidTxtB.Text = ""
@@ -146,7 +145,11 @@ Public Class MainForm
         helpForm.Show()
     End Sub
 
-    Private Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
+    Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
+        Dim strFileName As String
+        Dim didWork As Integer
+        Dim sb As New System.Text.StringBuilder()
+
         Dim mmpidParam As Integer
         Dim startParam As Integer
         Dim endParam As Integer
@@ -155,6 +158,52 @@ Public Class MainForm
         Dim result() As DataRow
         Dim searchHits As Integer
 
+        exportFD.Title = "Save as a text file"
+        exportFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only saving as .txt file
+        exportFD.ShowDialog()
+
+        If didWork = DialogResult.Cancel Then 'Handles if Cancel Button is clicked
+            Return
+        Else
+            strFileName = exportFD.FileName
+
+            ' If table has results
+            If outputTable.Rows.Count <> 0 Then
+
+                ' Column Titles
+                For Each column As DataColumn In searchTable.Columns
+                    sb.Append(column.ColumnName + vbTab)
+                Next
+
+                sb.Append(vbCr & vbLf)
+
+                ' Loop each row
+                For row As Integer = 0 To outputTable.Rows.Count - 1
+                    ' Loop each cell
+                    For cell As Integer = 0 To outputTable.Columns.Count - 1
+                        Dim cellContents As String
+
+                        cellContents = outputTable.Rows.Item(row).Item(cell).ToString()
+
+                        sb.Append(cellContents + vbTab)
+                    Next
+
+                    sb.Append(vbCr & vbLf)
+                Next
+
+                ' Open a stream writer to a new text file named "UserInputFile.txt" and write the contents  
+                ' of the stringbuilder to it.
+                ' Set bool to false in order to overwrite (and avoid messy nonsense)
+                Using outfile As IO.StreamWriter = New IO.StreamWriter(strFileName, False)
+                    Await outfile.WriteAsync(sb.ToString())
+                    Debug.Print(sb.ToString())
+                End Using
+
+            End If
+
+        End If
+
+        MsgBox("Saved to: " + strFileName)
         searchProgBar.Value = 0
         searchProgLabel.Text = Nothing
 

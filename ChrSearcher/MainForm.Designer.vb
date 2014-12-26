@@ -33,6 +33,7 @@ Partial Class MainForm
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.resetTT = New System.Windows.Forms.ToolTip(Me.components)
+        Me.resetBtn = New System.Windows.Forms.Button()
         Me.datasrcTxtB = New System.Windows.Forms.TextBox()
         Me.datasrcLabel = New System.Windows.Forms.Label()
         Me.importFD = New System.Windows.Forms.OpenFileDialog()
@@ -45,22 +46,21 @@ Partial Class MainForm
         Me.startLabel = New System.Windows.Forms.Label()
         Me.endLabel = New System.Windows.Forms.Label()
         Me.chromLabel = New System.Windows.Forms.Label()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.endTxtB = New System.Windows.Forms.TextBox()
+        Me.startTxtB = New System.Windows.Forms.TextBox()
         Me.mmpidLabel = New System.Windows.Forms.Label()
         Me.mmpidTxtB = New System.Windows.Forms.TextBox()
         Me.searchBtn = New System.Windows.Forms.Button()
-        Me.resetBtn = New System.Windows.Forms.Button()
         Me.geneLabel = New System.Windows.Forms.Label()
         Me.geneTxtB = New System.Windows.Forms.TextBox()
         Me.sampleIdTxtB = New System.Windows.Forms.TextBox()
         Me.sampleIDLabel = New System.Windows.Forms.Label()
         Me.paramGrpB = New System.Windows.Forms.GroupBox()
         Me.filterGrpB = New System.Windows.Forms.GroupBox()
-        Me.chrFiltPanel = New System.Windows.Forms.Panel()
-        Me.btwnRadBtn = New System.Windows.Forms.RadioButton()
-        Me.ovlpRadBtn = New System.Windows.Forms.RadioButton()
         Me.chromListBox = New System.Windows.Forms.ListBox()
+        Me.chrFiltPanel = New System.Windows.Forms.Panel()
+        Me.ovlpRadBtn = New System.Windows.Forms.RadioButton()
+        Me.btwnRadBtn = New System.Windows.Forms.RadioButton()
         Me.menuStrip.SuspendLayout()
         Me.paramGrpB.SuspendLayout()
         Me.filterGrpB.SuspendLayout()
@@ -123,6 +123,16 @@ Partial Class MainForm
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
         Me.AboutToolStripMenuItem.Text = "About"
         '
+        'resetBtn
+        '
+        Me.resetBtn.Location = New System.Drawing.Point(515, 417)
+        Me.resetBtn.Name = "resetBtn"
+        Me.resetBtn.Size = New System.Drawing.Size(75, 23)
+        Me.resetBtn.TabIndex = 1
+        Me.resetBtn.Text = "Reset"
+        Me.resetTT.SetToolTip(Me.resetBtn, "Clears all search parameters.")
+        Me.resetBtn.UseVisualStyleBackColor = True
+        '
         'datasrcTxtB
         '
         Me.datasrcTxtB.Location = New System.Drawing.Point(79, 27)
@@ -142,7 +152,7 @@ Partial Class MainForm
         '
         'searchProgBar
         '
-        Me.searchProgBar.Location = New System.Drawing.Point(418, 433)
+        Me.searchProgBar.Location = New System.Drawing.Point(57, 427)
         Me.searchProgBar.Name = "searchProgBar"
         Me.searchProgBar.Size = New System.Drawing.Size(200, 21)
         Me.searchProgBar.Step = 1
@@ -153,7 +163,7 @@ Partial Class MainForm
         'searchProgLabel
         '
         Me.searchProgLabel.AutoSize = True
-        Me.searchProgLabel.Location = New System.Drawing.Point(418, 417)
+        Me.searchProgLabel.Location = New System.Drawing.Point(57, 411)
         Me.searchProgLabel.Name = "searchProgLabel"
         Me.searchProgLabel.Size = New System.Drawing.Size(62, 13)
         Me.searchProgLabel.TabIndex = 19
@@ -172,7 +182,7 @@ Partial Class MainForm
         'searLabel
         '
         Me.searLabel.AutoSize = True
-        Me.searLabel.Location = New System.Drawing.Point(652, 430)
+        Me.searLabel.Location = New System.Drawing.Point(645, 427)
         Me.searLabel.Name = "searLabel"
         Me.searLabel.Size = New System.Drawing.Size(65, 13)
         Me.searLabel.TabIndex = 21
@@ -180,7 +190,7 @@ Partial Class MainForm
         '
         'searchTxtB
         '
-        Me.searchTxtB.Location = New System.Drawing.Point(714, 427)
+        Me.searchTxtB.Location = New System.Drawing.Point(707, 424)
         Me.searchTxtB.Name = "searchTxtB"
         Me.searchTxtB.ReadOnly = True
         Me.searchTxtB.Size = New System.Drawing.Size(147, 20)
@@ -189,7 +199,7 @@ Partial Class MainForm
         'startLabel
         '
         Me.startLabel.AutoSize = True
-        Me.startLabel.Location = New System.Drawing.Point(18, 159)
+        Me.startLabel.Location = New System.Drawing.Point(3, 24)
         Me.startLabel.Name = "startLabel"
         Me.startLabel.Size = New System.Drawing.Size(29, 13)
         Me.startLabel.TabIndex = 3
@@ -198,7 +208,7 @@ Partial Class MainForm
         'endLabel
         '
         Me.endLabel.AutoSize = True
-        Me.endLabel.Location = New System.Drawing.Point(18, 218)
+        Me.endLabel.Location = New System.Drawing.Point(223, 24)
         Me.endLabel.Name = "endLabel"
         Me.endLabel.Size = New System.Drawing.Size(26, 13)
         Me.endLabel.TabIndex = 4
@@ -207,25 +217,25 @@ Partial Class MainForm
         'chromLabel
         '
         Me.chromLabel.AutoSize = True
-        Me.chromLabel.Location = New System.Drawing.Point(18, 24)
+        Me.chromLabel.Location = New System.Drawing.Point(6, 198)
         Me.chromLabel.Name = "chromLabel"
         Me.chromLabel.Size = New System.Drawing.Size(79, 13)
         Me.chromLabel.TabIndex = 2
         Me.chromLabel.Text = "Chromosome(s)"
         '
-        'TextBox1
+        'endTxtB
         '
-        Me.TextBox1.Location = New System.Drawing.Point(21, 234)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(182, 20)
-        Me.TextBox1.TabIndex = 7
+        Me.endTxtB.Location = New System.Drawing.Point(226, 40)
+        Me.endTxtB.Name = "endTxtB"
+        Me.endTxtB.Size = New System.Drawing.Size(182, 20)
+        Me.endTxtB.TabIndex = 7
         '
-        'TextBox2
+        'startTxtB
         '
-        Me.TextBox2.Location = New System.Drawing.Point(21, 175)
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(182, 20)
-        Me.TextBox2.TabIndex = 8
+        Me.startTxtB.Location = New System.Drawing.Point(6, 40)
+        Me.startTxtB.Name = "startTxtB"
+        Me.startTxtB.Size = New System.Drawing.Size(182, 20)
+        Me.startTxtB.TabIndex = 8
         '
         'mmpidLabel
         '
@@ -245,22 +255,12 @@ Partial Class MainForm
         '
         'searchBtn
         '
-        Me.searchBtn.Location = New System.Drawing.Point(350, 351)
+        Me.searchBtn.Location = New System.Drawing.Point(372, 417)
         Me.searchBtn.Name = "searchBtn"
         Me.searchBtn.Size = New System.Drawing.Size(75, 23)
         Me.searchBtn.TabIndex = 0
         Me.searchBtn.Text = "Search"
         Me.searchBtn.UseVisualStyleBackColor = True
-        '
-        'resetBtn
-        '
-        Me.resetBtn.Location = New System.Drawing.Point(440, 351)
-        Me.resetBtn.Name = "resetBtn"
-        Me.resetBtn.Size = New System.Drawing.Size(75, 23)
-        Me.resetBtn.TabIndex = 1
-        Me.resetBtn.Text = "Reset"
-        Me.resetTT.SetToolTip(Me.resetBtn, "Clears all search parameters.")
-        Me.resetBtn.UseVisualStyleBackColor = True
         '
         'geneLabel
         '
@@ -296,7 +296,9 @@ Partial Class MainForm
         '
         'paramGrpB
         '
+        Me.paramGrpB.Controls.Add(Me.chromListBox)
         Me.paramGrpB.Controls.Add(Me.sampleIDLabel)
+        Me.paramGrpB.Controls.Add(Me.chromLabel)
         Me.paramGrpB.Controls.Add(Me.sampleIdTxtB)
         Me.paramGrpB.Controls.Add(Me.geneTxtB)
         Me.paramGrpB.Controls.Add(Me.geneLabel)
@@ -304,35 +306,56 @@ Partial Class MainForm
         Me.paramGrpB.Controls.Add(Me.mmpidLabel)
         Me.paramGrpB.Location = New System.Drawing.Point(12, 60)
         Me.paramGrpB.Name = "paramGrpB"
-        Me.paramGrpB.Size = New System.Drawing.Size(207, 200)
+        Me.paramGrpB.Size = New System.Drawing.Size(207, 326)
         Me.paramGrpB.TabIndex = 6
         Me.paramGrpB.TabStop = False
         Me.paramGrpB.Text = "Search Parameters"
         '
         'filterGrpB
         '
-        Me.filterGrpB.Controls.Add(Me.chromListBox)
         Me.filterGrpB.Controls.Add(Me.chrFiltPanel)
-        Me.filterGrpB.Controls.Add(Me.chromLabel)
         Me.filterGrpB.Controls.Add(Me.endLabel)
         Me.filterGrpB.Controls.Add(Me.startLabel)
-        Me.filterGrpB.Controls.Add(Me.TextBox1)
-        Me.filterGrpB.Controls.Add(Me.TextBox2)
+        Me.filterGrpB.Controls.Add(Me.endTxtB)
+        Me.filterGrpB.Controls.Add(Me.startTxtB)
         Me.filterGrpB.Location = New System.Drawing.Point(225, 60)
         Me.filterGrpB.Name = "filterGrpB"
-        Me.filterGrpB.Size = New System.Drawing.Size(356, 269)
+        Me.filterGrpB.Size = New System.Drawing.Size(558, 326)
         Me.filterGrpB.TabIndex = 23
         Me.filterGrpB.TabStop = False
         Me.filterGrpB.Text = "Filters"
+        '
+        'chromListBox
+        '
+        Me.chromListBox.ColumnWidth = 40
+        Me.chromListBox.FormattingEnabled = True
+        Me.chromListBox.Items.AddRange(New Object() {"chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chr23"})
+        Me.chromListBox.Location = New System.Drawing.Point(9, 214)
+        Me.chromListBox.MultiColumn = True
+        Me.chromListBox.Name = "chromListBox"
+        Me.chromListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple
+        Me.chromListBox.Size = New System.Drawing.Size(167, 95)
+        Me.chromListBox.TabIndex = 2
         '
         'chrFiltPanel
         '
         Me.chrFiltPanel.Controls.Add(Me.ovlpRadBtn)
         Me.chrFiltPanel.Controls.Add(Me.btwnRadBtn)
-        Me.chrFiltPanel.Location = New System.Drawing.Point(209, 188)
+        Me.chrFiltPanel.Location = New System.Drawing.Point(414, 27)
         Me.chrFiltPanel.Name = "chrFiltPanel"
-        Me.chrFiltPanel.Size = New System.Drawing.Size(141, 61)
+        Me.chrFiltPanel.Size = New System.Drawing.Size(134, 71)
         Me.chrFiltPanel.TabIndex = 10
+        '
+        'ovlpRadBtn
+        '
+        Me.ovlpRadBtn.AutoSize = True
+        Me.ovlpRadBtn.Location = New System.Drawing.Point(16, 35)
+        Me.ovlpRadBtn.Name = "ovlpRadBtn"
+        Me.ovlpRadBtn.Size = New System.Drawing.Size(106, 30)
+        Me.ovlpRadBtn.TabIndex = 1
+        Me.ovlpRadBtn.TabStop = True
+        Me.ovlpRadBtn.Text = "Overlapping " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Start/End Range"
+        Me.ovlpRadBtn.UseVisualStyleBackColor = True
         '
         'btwnRadBtn
         '
@@ -344,27 +367,6 @@ Partial Class MainForm
         Me.btwnRadBtn.TabStop = True
         Me.btwnRadBtn.Text = "Between Start/End"
         Me.btwnRadBtn.UseVisualStyleBackColor = True
-        '
-        'ovlpRadBtn
-        '
-        Me.ovlpRadBtn.AutoSize = True
-        Me.ovlpRadBtn.Location = New System.Drawing.Point(17, 26)
-        Me.ovlpRadBtn.Name = "ovlpRadBtn"
-        Me.ovlpRadBtn.Size = New System.Drawing.Size(106, 30)
-        Me.ovlpRadBtn.TabIndex = 1
-        Me.ovlpRadBtn.TabStop = True
-        Me.ovlpRadBtn.Text = "Overlapping " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Start/End Range"
-        Me.ovlpRadBtn.UseVisualStyleBackColor = True
-        '
-        'chromListBox
-        '
-        Me.chromListBox.FormattingEnabled = True
-        Me.chromListBox.Items.AddRange(New Object() {"chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chr23"})
-        Me.chromListBox.Location = New System.Drawing.Point(21, 40)
-        Me.chromListBox.Name = "chromListBox"
-        Me.chromListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple
-        Me.chromListBox.Size = New System.Drawing.Size(120, 95)
-        Me.chromListBox.TabIndex = 2
         '
         'MainForm
         '
@@ -423,8 +425,8 @@ Partial Class MainForm
     Friend WithEvents startLabel As System.Windows.Forms.Label
     Friend WithEvents endLabel As System.Windows.Forms.Label
     Friend WithEvents chromLabel As System.Windows.Forms.Label
-    Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
-    Friend WithEvents TextBox2 As System.Windows.Forms.TextBox
+    Friend WithEvents endTxtB As System.Windows.Forms.TextBox
+    Friend WithEvents startTxtB As System.Windows.Forms.TextBox
     Friend WithEvents mmpidLabel As System.Windows.Forms.Label
     Friend WithEvents mmpidTxtB As System.Windows.Forms.TextBox
     Friend WithEvents searchBtn As System.Windows.Forms.Button
