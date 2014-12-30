@@ -117,6 +117,42 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="instrTxtB.Text" xml:space="preserve">
+    <value>1. Select your file for search by dragging it into the program or using the
+"Open File" option from the File menu.
+Note: Analyzing and loading the file may take some, up to 5 minutes for very 
+large files (&gt;10GB).
+
+2. Enter your search parameters into the text boxes. If necessary, select the 
+chromosomes to which the search should be limited. At least one search 
+parameter should be entered or chromosome filtering applied for the search
+to yield any results differing from the original file.
+
+3. Apply any filters using the text boxes and drop down menus for each of the 
+columns in the file.
+
+4. Hit the "Search" button to search the file. You will be prompted to select
+a location and name for the search results file that will be generated.
+The search may take some time (up to 30 minutes for large files and many 
+search parameters/filters). </value>
+  </data>
+  <data name="troubleTxtB.Text" xml:space="preserve">
+    <value>"The program isn't searching for MMPIDs, Sample IDs, Genes correctly!"
+ChroSearch recognizes the header of the file to determine which columns 
+correspond to which search field. If the column headers for the "MMPID",
+"GENE", and "SAMPLE_ID" columns are not as just described, the program
+will not be able to recognize them! Change the headers of these columns
+to the above for it to work! The same goes for the "CHR" column.
+
+"The program isn't filtering by start/end locations properly!"
+Do you have the correct option selected for the type of search you want? Be 
+sure to select whether you'd like it to search for rows with both the start/end
+locations within your search parameter or simply overlapping them. 
+Additionally, be sure that the column headers for the "START" and "END"
+columns are correct. 
+
+Contact jared.andrews@wustl.edu for additional help and troubleshooting. </value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

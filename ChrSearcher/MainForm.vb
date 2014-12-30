@@ -1,5 +1,6 @@
 ﻿'Author contact: jared.andrews07@gmail.com
 Imports System.IO.File
+Imports System.ComponentModel
 Public Class MainForm
 
     'Creates instance of HelpForm so multiple can't be created by clicking help multiple times
@@ -8,6 +9,8 @@ Public Class MainForm
     Dim searchTable As DataTable
     Dim outputTable As DataTable
     Dim lineCount As Integer
+
+
 
     'Allows user to drag and drop input file into program
     Private Sub MainForm_DragDrop(sender As System.Object, e As System.Windows.Forms.DragEventArgs) Handles Me.DragDrop
@@ -46,6 +49,8 @@ Public Class MainForm
         Dim filePath As String = getFileImport() 'Returns the file path
 
         If filePath <> "" Then
+            statusStrip.Visible = True
+            Me.Cursor = Cursors.WaitCursor
             datasrcTxtB.Text = filePath
             searchTable = makeSearchDataTable(filePath)
             lineCount = 0
@@ -60,6 +65,8 @@ Public Class MainForm
                 + watch.Elapsed.Seconds().ToString() + " seconds.")
         End If
 
+        statusStrip.Visible = False
+        Me.Cursor = Cursors.Default
     End Sub
 
     'Shows "About" information from the help menu.
@@ -148,7 +155,6 @@ Public Class MainForm
     Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim strFileName As String
         Dim didWork As Integer
-        Dim sb As New System.Text.StringBuilder()
 
         Dim mmpidParam As Integer
         Dim startParam As Integer
@@ -157,6 +163,8 @@ Public Class MainForm
         Dim chromParam As String
         Dim result() As DataRow
         Dim searchHits As Integer
+        Dim i As Integer = 0
+
 
         exportFD.Title = "Save as a text file"
         exportFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only saving as .txt file
@@ -166,119 +174,70 @@ Public Class MainForm
             Return
         Else
             strFileName = exportFD.FileName
+            Dim writer As New IO.StreamWriter(strFileName, True)
+            Dim reader As New IO.StreamReader(datasrcTxtB.Text)
+            Dim line As String
+            Dim readRow() As String
 
-            ' If table has results
-            If outputTable.Rows.Count <> 0 Then
+            searchProgBar.Value = 0
+            searchProgLabel.Text = Nothing
 
-                ' Column Titles
-                For Each column As DataColumn In searchTable.Columns
-                    sb.Append(column.ColumnName + vbTab)
-                Next
+            If mmpidTxtB.Text <> "" Then
+                mmpidParam = Convert.ToInt64(mmpidTxtB.Text)
+                searchProgBar.Maximum = lineCount
+                searchProgBar.Visible = True
+                searchProgLabel.Visible = True
+                While reader.ReadLine() <> Nothing
+                    line = reader.ReadLine()
+                    readRow = Split(line, vbTab)
+                    searchTable.Rows.Add(readRow)
 
-                sb.Append(vbCr & vbLf)
+                    result = searchTable.Select("MMPID='" & mmpidParam & "'")
 
-                ' Loop each row
-                For row As Integer = 0 To outputTable.Rows.Count - 1
-                    ' Loop each cell
-                    For cell As Integer = 0 To outputTable.Columns.Count - 1
-                        Dim cellContents As String
+                    If result.Count() > 0 Then
+                        Dim stringBuild As New System.Text.StringBuilder()
+                        While i < 1
+                            For Each column As DataColumn In searchTable.Columns
+                                stringBuild.Append(column.ColumnName + vbTab)
+                            Next
+                            i += 1
+                            Await writer.WriteLineAsync(stringBuild.ToString())
+                            stringBuild.Clear()
+                        End While
+                        For Each row As DataRow In result
+                            For cell As Integer = 0 To searchTable.Columns.Count - 1
+                                Dim cellContents As String
+                                cellContents = searchTable.Rows.Item(0).Item(cell).ToString()
+                                stringBuild.Append(cellContents + vbTab)
+                            Next
+                            Await writer.WriteLineAsync(stringBuild.ToString())
+                            stringBuild.Clear()
+                        Next
+                        searchHits += 1
+                        Debug.Print(searchHits)
+                        searchTable.Rows(0).Delete()
+                        result.ElementAt(0).Delete()
+                    End If
 
-                        cellContents = outputTable.Rows.Item(row).Item(cell).ToString()
+                    searchProgBar.Value += 2
+                    searchProgBar.Value -= 1
+                    searchProgLabel.Text = "Running..." + (Int(searchProgBar.Value * 100 / searchProgBar.Maximum)).ToString() + "% Complete"
 
-                        sb.Append(cellContents + vbTab)
-                    Next
 
-                    sb.Append(vbCr & vbLf)
-                Next
-
-                ' Open a stream writer to a new text file named "UserInputFile.txt" and write the contents  
-                ' of the stringbuilder to it.
-                ' Set bool to false in order to overwrite (and avoid messy nonsense)
-                Using outfile As IO.StreamWriter = New IO.StreamWriter(strFileName, False)
-                    Await outfile.WriteAsync(sb.ToString())
-                    Debug.Print(sb.ToString())
-                End Using
-
+                End While
+                searchTxtB.Text = searchHits
+            Else
+                MsgBox("Please input a search parameter!", MsgBoxStyle.OkOnly, "No search parameters entered!")
             End If
 
+            writer.Close()
+            reader.Close()
+            MsgBox("Saved to: " + strFileName)
         End If
 
-        MsgBox("Saved to: " + strFileName)
-        searchProgBar.Value = 0
-        searchProgLabel.Text = Nothing
-
-        If mmpidTxtB.Text <> "" Then
-
-            mmpidParam = Convert.ToInt64(mmpidTxtB.Text)
-            result = searchTable.Select("MMPID='" & mmpidParam & "'")
-            searchProgBar.Maximum = lineCount
-            searchProgBar.Visible = True
-            searchProgLabel.Visible = True
-            For Each row As DataRow In result
-                searchTable.ImportRow(row)
-                searchProgBar.Value += 1
-                searchProgLabel.Text = "Running..." + (Int(searchProgBar.Value * 100 / searchProgBar.Maximum)).ToString() + "%"
-            Next
-            searchTxtB.Text = outputTable.Rows.Count().ToString()
-        Else
-            MsgBox("Please input a search parameter!", MsgBoxStyle.OkOnly, "No search parameters entered!")
-        End If
     End Sub
 
-    'Saves output when user clicks the Export button.
-    Private Async Sub exportBtn_Click(sender As Object, e As EventArgs) Handles exportBtn.Click
-        Dim strFileName As String
-        Dim didWork As Integer
-        Dim sb As New System.Text.StringBuilder()
-        Dim exportData As New DataTable
-        exportData = outputTable.Clone()
-        exportFD.Title = "Save as a text file"
-        exportFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only saving as .txt file
-        exportFD.ShowDialog()
-
-        If didWork = DialogResult.Cancel Then 'Handles if Cancel Button is clicked
-            Return
-        Else
-            strFileName = exportFD.FileName
-
-            ' If table has results
-            If outputTable.Rows.Count <> 0 Then
-
-                ' Column Titles
-                For Each column As DataColumn In exportData.Columns
-                    sb.Append(column.ColumnName + vbTab)
-                Next
-
-                sb.Append(vbCr & vbLf)
-
-                ' Loop each row
-                For row As Integer = 0 To outputTable.Rows.Count - 1
-                    ' Loop each cell
-                    For cell As Integer = 0 To outputTable.Columns.Count - 1
-                        Dim cellContents As String
-
-                        cellContents = outputTable.Rows.Item(row).Item(cell).ToString()
-
-                        sb.Append(cellContents + vbTab)
-                    Next
-
-                    sb.Append(vbCr & vbLf)
-                Next
-
-                ' Open a stream writer to a new text file named "UserInputFile.txt" and write the contents  
-                ' of the stringbuilder to it.
-                ' Set bool to false in order to overwrite (and avoid messy nonsense)
-                Using outfile As IO.StreamWriter = New IO.StreamWriter(strFileName, False)
-                    Await outfile.WriteAsync(sb.ToString())
-                    Debug.Print(sb.ToString())
-                End Using
-
-            End If
-
-        End If
-
-        MsgBox("Saved to: " + strFileName)
-    End Sub
+    
 
     
 End Class
