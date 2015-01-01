@@ -34,7 +34,7 @@
             Dim colCount As Integer = 0
 
             ' Loop line by line
-            Do While textReader.Peek() >= 0
+            For k As Integer = 0 To 0
                 nextLine = textReader.ReadLine()
 
                 ' String tokenizing by the tab character
@@ -51,8 +51,9 @@
                     Loop
                     i = 1
                 End If
+                k += 1
+            Next
 
-            Loop
 
             textReader.Close()
 

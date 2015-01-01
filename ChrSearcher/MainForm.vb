@@ -47,22 +47,12 @@ Public Class MainForm
     'in datasrcTxtB for reference.
     Private Sub openMenuItem_Click(sender As Object, e As EventArgs) Handles openMenuItem.Click
         Dim filePath As String = getFileImport() 'Returns the file path
-
+        statusStrip.Visible = True
+        Me.Cursor = Cursors.WaitCursor
+        Me.Refresh()
         If filePath <> "" Then
-            statusStrip.Visible = True
-            Me.Cursor = Cursors.WaitCursor
             datasrcTxtB.Text = filePath
-            searchTable = makeSearchDataTable(filePath)
-            lineCount = 0
-            Dim reader As New IO.StreamReader(filePath)
-            Dim watch As Stopwatch = Stopwatch.StartNew()
-            While reader.ReadLine() <> Nothing
-                lineCount += 1
-            End While
-            watch.Stop()
-            lineCount -= 1
-            MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
-                + watch.Elapsed.Seconds().ToString() + " seconds.")
+            backgroundWorker1.RunWorkerAsync(filePath)
         End If
 
         statusStrip.Visible = False
@@ -162,7 +152,7 @@ Public Class MainForm
         Dim geneParam As String
         Dim chromParam As String
         Dim result() As DataRow
-        Dim searchHits As Integer
+        Dim searchHits As Integer = 0
         Dim i As Integer = 0
 
 
@@ -187,7 +177,7 @@ Public Class MainForm
                 searchProgBar.Maximum = lineCount
                 searchProgBar.Visible = True
                 searchProgLabel.Visible = True
-                While reader.ReadLine() <> Nothing
+                Do While reader.Peek() > 0
                     line = reader.ReadLine()
                     readRow = Split(line, vbTab)
                     searchTable.Rows.Add(readRow)
@@ -215,16 +205,20 @@ Public Class MainForm
                         Next
                         searchHits += 1
                         Debug.Print(searchHits)
-                        searchTable.Rows(0).Delete()
-                        result.ElementAt(0).Delete()
+                    End If
+                    searchTable.Rows(0).Delete()
+
+                    If searchProgBar.Value = searchProgBar.Maximum Then
+
+                    Else
+                        searchProgBar.Value += 1
                     End If
 
-                    searchProgBar.Value += 2
-                    searchProgBar.Value -= 1
-                    searchProgLabel.Text = "Running..." + (Int(searchProgBar.Value * 100 / searchProgBar.Maximum)).ToString() + "% Complete"
 
+                    searchProgLabel.Text = "Running..." + (Int((searchProgBar.Value / searchProgBar.Maximum) * 100).ToString()) + "% Complete"
+                    searchProgLabel.Update()
+                Loop
 
-                End While
                 searchTxtB.Text = searchHits
             Else
                 MsgBox("Please input a search parameter!", MsgBoxStyle.OkOnly, "No search parameters entered!")
@@ -240,4 +234,19 @@ Public Class MainForm
     
 
     
+    Private Sub backgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) Handles backgroundWorker1.DoWork
+        Dim worker As BackgroundWorker = CType(sender, BackgroundWorker)
+        Dim filepath As String = e.Argument
+        Dim watch As Stopwatch = Stopwatch.StartNew()
+        searchTable = makeSearchDataTable(filepath)
+        lineCount = 0
+        Dim reader As New IO.StreamReader(filepath)
+        While reader.ReadLine() <> Nothing
+            lineCount += 1
+        End While
+        watch.Stop()
+        lineCount -= 1
+        MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
+                + watch.Elapsed.Seconds().ToString() + " seconds.")
+    End Sub
 End Class

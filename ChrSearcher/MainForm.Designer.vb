@@ -55,13 +55,14 @@ Partial Class MainForm
         Me.sampleIdTxtB = New System.Windows.Forms.TextBox()
         Me.sampleIDLabel = New System.Windows.Forms.Label()
         Me.paramGrpB = New System.Windows.Forms.GroupBox()
-        Me.chromListBox = New System.Windows.Forms.ListBox()
         Me.filterGrpB = New System.Windows.Forms.GroupBox()
         Me.chrFiltPanel = New System.Windows.Forms.Panel()
         Me.ovlpRadBtn = New System.Windows.Forms.RadioButton()
         Me.btwnRadBtn = New System.Windows.Forms.RadioButton()
         Me.statusStrip = New System.Windows.Forms.StatusStrip()
         Me.loadingLabel = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.backgroundWorker1 = New System.ComponentModel.BackgroundWorker()
+        Me.chromTxtB = New System.Windows.Forms.TextBox()
         Me.menuStrip.SuspendLayout()
         Me.paramGrpB.SuspendLayout()
         Me.filterGrpB.SuspendLayout()
@@ -210,7 +211,7 @@ Partial Class MainForm
         'chromLabel
         '
         Me.chromLabel.AutoSize = True
-        Me.chromLabel.Location = New System.Drawing.Point(6, 198)
+        Me.chromLabel.Location = New System.Drawing.Point(3, 85)
         Me.chromLabel.Name = "chromLabel"
         Me.chromLabel.Size = New System.Drawing.Size(79, 13)
         Me.chromLabel.TabIndex = 2
@@ -289,9 +290,7 @@ Partial Class MainForm
         '
         'paramGrpB
         '
-        Me.paramGrpB.Controls.Add(Me.chromListBox)
         Me.paramGrpB.Controls.Add(Me.sampleIDLabel)
-        Me.paramGrpB.Controls.Add(Me.chromLabel)
         Me.paramGrpB.Controls.Add(Me.sampleIdTxtB)
         Me.paramGrpB.Controls.Add(Me.geneTxtB)
         Me.paramGrpB.Controls.Add(Me.geneLabel)
@@ -304,21 +303,11 @@ Partial Class MainForm
         Me.paramGrpB.TabStop = False
         Me.paramGrpB.Text = "Search Parameters"
         '
-        'chromListBox
-        '
-        Me.chromListBox.ColumnWidth = 40
-        Me.chromListBox.FormattingEnabled = True
-        Me.chromListBox.Items.AddRange(New Object() {"chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chr23"})
-        Me.chromListBox.Location = New System.Drawing.Point(9, 214)
-        Me.chromListBox.MultiColumn = True
-        Me.chromListBox.Name = "chromListBox"
-        Me.chromListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple
-        Me.chromListBox.Size = New System.Drawing.Size(167, 95)
-        Me.chromListBox.TabIndex = 2
-        '
         'filterGrpB
         '
+        Me.filterGrpB.Controls.Add(Me.chromTxtB)
         Me.filterGrpB.Controls.Add(Me.chrFiltPanel)
+        Me.filterGrpB.Controls.Add(Me.chromLabel)
         Me.filterGrpB.Controls.Add(Me.endLabel)
         Me.filterGrpB.Controls.Add(Me.startLabel)
         Me.filterGrpB.Controls.Add(Me.endTxtB)
@@ -376,6 +365,18 @@ Partial Class MainForm
         Me.loadingLabel.Name = "loadingLabel"
         Me.loadingLabel.Size = New System.Drawing.Size(125, 17)
         Me.loadingLabel.Text = "Loading. . .Please Wait"
+        '
+        'backgroundWorker1
+        '
+        Me.backgroundWorker1.WorkerReportsProgress = True
+        Me.backgroundWorker1.WorkerSupportsCancellation = True
+        '
+        'chromTxtB
+        '
+        Me.chromTxtB.Location = New System.Drawing.Point(6, 101)
+        Me.chromTxtB.Name = "chromTxtB"
+        Me.chromTxtB.Size = New System.Drawing.Size(150, 20)
+        Me.chromTxtB.TabIndex = 11
         '
         'MainForm
         '
@@ -447,11 +448,12 @@ Partial Class MainForm
     Friend WithEvents sampleIDLabel As System.Windows.Forms.Label
     Friend WithEvents paramGrpB As System.Windows.Forms.GroupBox
     Friend WithEvents filterGrpB As System.Windows.Forms.GroupBox
-    Friend WithEvents chromListBox As System.Windows.Forms.ListBox
     Friend WithEvents chrFiltPanel As System.Windows.Forms.Panel
     Friend WithEvents ovlpRadBtn As System.Windows.Forms.RadioButton
     Friend WithEvents btwnRadBtn As System.Windows.Forms.RadioButton
     Friend WithEvents statusStrip As System.Windows.Forms.StatusStrip
     Friend WithEvents loadingLabel As System.Windows.Forms.ToolStripStatusLabel
+    Friend WithEvents backgroundWorker1 As System.ComponentModel.BackgroundWorker
+    Friend WithEvents chromTxtB As System.Windows.Forms.TextBox
 
 End Class
