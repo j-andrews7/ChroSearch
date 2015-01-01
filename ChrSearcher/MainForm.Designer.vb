@@ -61,7 +61,7 @@ Partial Class MainForm
         Me.btwnRadBtn = New System.Windows.Forms.RadioButton()
         Me.statusStrip = New System.Windows.Forms.StatusStrip()
         Me.loadingLabel = New System.Windows.Forms.ToolStripStatusLabel()
-        Me.backgroundWorker1 = New System.ComponentModel.BackgroundWorker()
+        Me.loadBGWorker = New System.ComponentModel.BackgroundWorker()
         Me.chromTxtB = New System.Windows.Forms.TextBox()
         Me.menuStrip.SuspendLayout()
         Me.paramGrpB.SuspendLayout()
@@ -357,19 +357,19 @@ Partial Class MainForm
         Me.statusStrip.Name = "statusStrip"
         Me.statusStrip.Size = New System.Drawing.Size(792, 22)
         Me.statusStrip.TabIndex = 24
-        Me.statusStrip.Text = "StatusStrip1"
-        Me.statusStrip.Visible = False
+        Me.statusStrip.UseWaitCursor = True
         '
         'loadingLabel
         '
         Me.loadingLabel.Name = "loadingLabel"
-        Me.loadingLabel.Size = New System.Drawing.Size(125, 17)
-        Me.loadingLabel.Text = "Loading. . .Please Wait"
+        Me.loadingLabel.Size = New System.Drawing.Size(276, 17)
+        Me.loadingLabel.Text = "Loading. . .Please wait, this may take a few minutes"
+        Me.loadingLabel.Visible = False
         '
-        'backgroundWorker1
+        'loadBGWorker
         '
-        Me.backgroundWorker1.WorkerReportsProgress = True
-        Me.backgroundWorker1.WorkerSupportsCancellation = True
+        Me.loadBGWorker.WorkerReportsProgress = True
+        Me.loadBGWorker.WorkerSupportsCancellation = True
         '
         'chromTxtB
         '
@@ -453,7 +453,7 @@ Partial Class MainForm
     Friend WithEvents btwnRadBtn As System.Windows.Forms.RadioButton
     Friend WithEvents statusStrip As System.Windows.Forms.StatusStrip
     Friend WithEvents loadingLabel As System.Windows.Forms.ToolStripStatusLabel
-    Friend WithEvents backgroundWorker1 As System.ComponentModel.BackgroundWorker
+    Friend WithEvents loadBGWorker As System.ComponentModel.BackgroundWorker
     Friend WithEvents chromTxtB As System.Windows.Forms.TextBox
 
 End Class

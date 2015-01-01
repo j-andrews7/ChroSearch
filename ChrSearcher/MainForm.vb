@@ -20,7 +20,7 @@ Public Class MainForm
         datasrcTxtB.Text = filePath
 
         If fileExt = ".txt" Then 'Checks to be sure the input is a .txt file
-            'searchTable = makeInputDataTable(filePath)
+            searchTable = makeSearchDataTable(filePath)
             lineCount = 0
             Dim reader As New IO.StreamReader(filePath)
             Dim watch As Stopwatch = Stopwatch.StartNew()
@@ -47,16 +47,16 @@ Public Class MainForm
     'in datasrcTxtB for reference.
     Private Sub openMenuItem_Click(sender As Object, e As EventArgs) Handles openMenuItem.Click
         Dim filePath As String = getFileImport() 'Returns the file path
-        statusStrip.Visible = True
-        Me.Cursor = Cursors.WaitCursor
-        Me.Refresh()
+        Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
+        loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
+        loadingLabel.Text = "Loading...Please wait, this may take a few minutes."
+
+        'If filepath isn't blank, then loads the select file using the loadBGWorker.
         If filePath <> "" Then
             datasrcTxtB.Text = filePath
-            backgroundWorker1.RunWorkerAsync(filePath)
+            loadBGWorker.RunWorkerAsync(filePath)
         End If
 
-        statusStrip.Visible = False
-        Me.Cursor = Cursors.Default
     End Sub
 
     'Shows "About" information from the help menu.
@@ -64,63 +64,6 @@ Public Class MainForm
         MsgBox("ChroSearch Developed by the Payton Lab", , "About ChroSearch")
     End Sub
 
-
-
-
-    'Saves output when user uses File -> Export path.
-    Private Async Sub exportMenuItem_Click(sender As Object, e As EventArgs) Handles exportMenuItem.Click
-        Dim strFileName As String
-        Dim didWork As Integer
-        Dim sb As New System.Text.StringBuilder()
-        Dim exportData As New DataTable
-        exportData = outputTable.Clone()
-        exportFD.Title = "Save as a text file"
-        exportFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only saving as .txt file
-        exportFD.ShowDialog()
-
-        If didWork = DialogResult.Cancel Then 'Handles if Cancel Button is clicked
-            Return
-        Else
-            strFileName = exportFD.FileName
-
-            ' If table has results
-            If outputTable.Rows.Count <> 0 Then
-
-                ' Column Titles
-                For Each column As DataColumn In exportData.Columns
-                    sb.Append(column.ColumnName + vbTab)
-                Next
-
-                sb.Append(vbCr & vbLf)
-
-                ' Loop each row
-                For row As Integer = 0 To outputTable.Rows.Count - 1
-                    ' Loop each cell
-                    For cell As Integer = 0 To outputTable.Columns.Count - 1
-                        Dim cellContents As String
-
-                        cellContents = outputTable.Rows.Item(row).Item(cell).ToString()
-
-                        sb.Append(cellContents + vbTab)
-                    Next
-
-                    sb.Append(vbCr & vbLf)
-                Next
-
-                ' Open a stream writer to a new text file named "UserInputFile.txt" and write the contents  
-                ' of the stringbuilder to it.
-                ' Set bool to false in order to overwrite (and avoid messy nonsense)
-                Using outfile As IO.StreamWriter = New IO.StreamWriter(strFileName, False)
-                    Await outfile.WriteAsync(sb.ToString())
-                    Debug.Print(sb.ToString())
-                End Using
-
-            End If
-
-        End If
-
-        MsgBox("Saved to: " + strFileName)
-    End Sub
 
     'Clears the search parameters when the reset button is clicked.
     Private Sub resetBtn_Click(sender As Object, e As EventArgs) Handles resetBtn.Click
@@ -138,10 +81,12 @@ Public Class MainForm
         End If
     End Sub
 
+    'Loads the help form when user clicks -> Help -> Help
     Private Sub HelpToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HelpToolStripMenuItem.Click
         helpForm.Show()
     End Sub
 
+    'Searches the loaded file
     Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim strFileName As String
         Dim didWork As Integer
@@ -155,12 +100,12 @@ Public Class MainForm
         Dim searchHits As Integer = 0
         Dim i As Integer = 0
 
-
+        'Prompts user to enter title of file to be created
         exportFD.Title = "Save as a text file"
         exportFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only saving as .txt file
         exportFD.ShowDialog()
 
-        If didWork = DialogResult.Cancel Then 'Handles if Cancel Button is clicked
+        If didWork = DialogResult.Cancel Then 'Handles if Cancel Button of dialog is clicked
             Return
         Else
             strFileName = exportFD.FileName
@@ -169,23 +114,31 @@ Public Class MainForm
             Dim line As String
             Dim readRow() As String
 
+            'Resets progress bar and label
             searchProgBar.Value = 0
             searchProgLabel.Text = Nothing
 
-            If mmpidTxtB.Text <> "" Then
+            If mmpidTxtB.Text <> "" Or Nothing Then 'Checks that parameter is filled
                 mmpidParam = Convert.ToInt64(mmpidTxtB.Text)
+
+                'Sets up progressbar
                 searchProgBar.Maximum = lineCount
                 searchProgBar.Visible = True
                 searchProgLabel.Visible = True
+
+                'Search whole file, line by line
                 Do While reader.Peek() > 0
                     line = reader.ReadLine()
                     readRow = Split(line, vbTab)
-                    searchTable.Rows.Add(readRow)
+                    searchTable.Rows.Add(readRow) 'Add row to searchtable
 
-                    result = searchTable.Select("MMPID='" & mmpidParam & "'")
+                    result = searchTable.Select("MMPID='" & mmpidParam & "'") 'Search for MMPID in the single row
 
+                    'If search parameter is found in the newly added row, write it to new export file
                     If result.Count() > 0 Then
                         Dim stringBuild As New System.Text.StringBuilder()
+
+                        'Write headers of the search datatable first to export file
                         While i < 1
                             For Each column As DataColumn In searchTable.Columns
                                 stringBuild.Append(column.ColumnName + vbTab)
@@ -194,6 +147,8 @@ Public Class MainForm
                             Await writer.WriteLineAsync(stringBuild.ToString())
                             stringBuild.Clear()
                         End While
+
+                        'Add the row to the export file, cell by cell
                         For Each row As DataRow In result
                             For cell As Integer = 0 To searchTable.Columns.Count - 1
                                 Dim cellContents As String
@@ -203,27 +158,32 @@ Public Class MainForm
                             Await writer.WriteLineAsync(stringBuild.ToString())
                             stringBuild.Clear()
                         Next
+
                         searchHits += 1
                         Debug.Print(searchHits)
                     End If
-                    searchTable.Rows(0).Delete()
 
+                    searchTable.Rows(0).Delete() 'Delete the searched row
+
+                    'Makes sure progress bar doesn't go out of range
                     If searchProgBar.Value = searchProgBar.Maximum Then
 
                     Else
-                        searchProgBar.Value += 1
+                        searchProgBar.Value += 1 'Increase value of search bar for each line searched
                     End If
 
-
+                    'Updates label for progress bar with percentage, time remaining.
                     searchProgLabel.Text = "Running..." + (Int((searchProgBar.Value / searchProgBar.Maximum) * 100).ToString()) + "% Complete"
-                    searchProgLabel.Update()
-                Loop
+                    searchProgLabel.Update() 'Must manually force since this function isn't asynchronous yet
 
-                searchTxtB.Text = searchHits
+                Loop 'Move to next row in input file
+
+                searchTxtB.Text = searchHits 'Shows number of hits from search
             Else
                 MsgBox("Please input a search parameter!", MsgBoxStyle.OkOnly, "No search parameters entered!")
             End If
 
+            'Close out writer and reader and tell user file was saved
             writer.Close()
             reader.Close()
             MsgBox("Saved to: " + strFileName)
@@ -231,22 +191,33 @@ Public Class MainForm
 
     End Sub
 
-    
 
-    
-    Private Sub backgroundWorker1_DoWork(sender As Object, e As DoWorkEventArgs) Handles backgroundWorker1.DoWork
+
+    'Takes care of the file loading so the program doesn't just hang when loading
+    Private Sub loadBGWorker_DoWork(sender As Object, e As DoWorkEventArgs) Handles loadBGWorker.DoWork
         Dim worker As BackgroundWorker = CType(sender, BackgroundWorker)
-        Dim filepath As String = e.Argument
-        Dim watch As Stopwatch = Stopwatch.StartNew()
-        searchTable = makeSearchDataTable(filepath)
-        lineCount = 0
+        Dim filepath As String = e.Argument 'Argument passed to determine filepath
+        Dim watch As Stopwatch = Stopwatch.StartNew() 'Times loading
         Dim reader As New IO.StreamReader(filepath)
-        While reader.ReadLine() <> Nothing
+        lineCount = 0 'Resets lineCount variable of loaded file
+
+        searchTable = makeSearchDataTable(filepath) 'Makes search datatable from file
+
+        While reader.ReadLine() <> Nothing 'Counts lines of file
             lineCount += 1
         End While
+
         watch.Stop()
-        lineCount -= 1
+        lineCount -= 1 'Removes a line to account for the headers
+
         MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
                 + watch.Elapsed.Seconds().ToString() + " seconds.")
+
+    End Sub
+
+    'Updates statusbar and returns cursor to normal after loadBGWorker finishes work.
+    Private Sub loadBGWorker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles loadBGWorker.RunWorkerCompleted
+        Me.Cursor = Cursors.Default
+        loadingLabel.Text = "File loaded: " + lineCount.ToString() + " lines to search"
     End Sub
 End Class
