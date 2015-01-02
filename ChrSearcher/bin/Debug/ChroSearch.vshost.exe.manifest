@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ChroSearch.exe" size="103864">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ChroSearch.exe" size="103352">
       <assemblyIdentity name="ChroSearch" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>exkjtFExR7LVLeP7AVA71ABm6zR/gJWD8DL4efK2yBA=</dsig:DigestValue>
+        <dsig:DigestValue>FhiDP8t2NQ4ziAKMp9RRyv6VDIGfhF/Hg/ou8cImE2U=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

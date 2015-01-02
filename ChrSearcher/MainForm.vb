@@ -17,21 +17,13 @@ Public Class MainForm
         Dim files() As String = e.Data.GetData(DataFormats.FileDrop)
         Dim filePath As String = System.IO.Path.GetFullPath(files(0))
         Dim fileExt As String = System.IO.Path.GetExtension(files(0))
-        datasrcTxtB.Text = filePath
 
         If fileExt = ".txt" Then 'Checks to be sure the input is a .txt file
-            searchTable = makeSearchDataTable(filePath)
-            lineCount = 0
-            Dim reader As New IO.StreamReader(filePath)
-            Dim watch As Stopwatch = Stopwatch.StartNew()
-            While reader.ReadLine() <> Nothing
-                lineCount += 1
-            End While
-            watch.Stop()
-            MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
-                   + watch.Elapsed.Seconds().ToString() + " seconds.")
-        Else
-            MsgBox("Only .txt files are accepted.") 'Tells user only .txt files are accepted for input if they try to use different file type
+            Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
+            loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
+            loadingLabel.Text = "Loading...Please wait, this may take a few minutes."
+            datasrcTxtB.Text = filePath
+            loadBGWorker.RunWorkerAsync(filePath)
         End If
 
     End Sub
@@ -118,8 +110,9 @@ Public Class MainForm
             searchProgBar.Value = 0
             searchProgLabel.Text = Nothing
 
-            If mmpidTxtB.Text <> "" Or Nothing Then 'Checks that parameter is filled
+            If mmpidTxtB.Text <> "" Or Nothing And geneTxtB.Text <> "" Or Nothing Then 'Checks that parameter is filled
                 mmpidParam = Convert.ToInt64(mmpidTxtB.Text)
+                geneParam = geneTxtB.Text
 
                 'Sets up progressbar
                 searchProgBar.Maximum = lineCount
@@ -136,31 +129,34 @@ Public Class MainForm
 
                     'If search parameter is found in the newly added row, write it to new export file
                     If result.Count() > 0 Then
-                        Dim stringBuild As New System.Text.StringBuilder()
+                        result = searchTable.Select("GENE='" & geneParam & "'")
+                        If result.Count() > 0 Then
+                            Dim stringBuild As New System.Text.StringBuilder()
 
-                        'Write headers of the search datatable first to export file
-                        While i < 1
-                            For Each column As DataColumn In searchTable.Columns
-                                stringBuild.Append(column.ColumnName + vbTab)
+                            'Write headers of the search datatable first to export file
+                            While i < 1
+                                For Each column As DataColumn In searchTable.Columns
+                                    stringBuild.Append(column.ColumnName + vbTab)
+                                Next
+                                i += 1
+                                Await writer.WriteLineAsync(stringBuild.ToString())
+                                stringBuild.Clear()
+                            End While
+
+                            'Add the row to the export file, cell by cell
+                            For Each row As DataRow In result
+                                For cell As Integer = 0 To searchTable.Columns.Count - 1
+                                    Dim cellContents As String
+                                    cellContents = searchTable.Rows.Item(0).Item(cell).ToString()
+                                    stringBuild.Append(cellContents + vbTab)
+                                Next
+                                Await writer.WriteLineAsync(stringBuild.ToString())
+                                stringBuild.Clear()
                             Next
-                            i += 1
-                            Await writer.WriteLineAsync(stringBuild.ToString())
-                            stringBuild.Clear()
-                        End While
 
-                        'Add the row to the export file, cell by cell
-                        For Each row As DataRow In result
-                            For cell As Integer = 0 To searchTable.Columns.Count - 1
-                                Dim cellContents As String
-                                cellContents = searchTable.Rows.Item(0).Item(cell).ToString()
-                                stringBuild.Append(cellContents + vbTab)
-                            Next
-                            Await writer.WriteLineAsync(stringBuild.ToString())
-                            stringBuild.Clear()
-                        Next
-
-                        searchHits += 1
-                        Debug.Print(searchHits)
+                            searchHits += 1
+                            Debug.Print(searchHits)
+                        End If
                     End If
 
                     searchTable.Rows(0).Delete() 'Delete the searched row

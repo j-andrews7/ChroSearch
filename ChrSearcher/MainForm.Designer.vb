@@ -27,7 +27,6 @@ Partial Class MainForm
         Me.menuStrip = New System.Windows.Forms.MenuStrip()
         Me.FileMenu = New System.Windows.Forms.ToolStripMenuItem()
         Me.openMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.exportMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpMenu = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -56,13 +55,13 @@ Partial Class MainForm
         Me.sampleIDLabel = New System.Windows.Forms.Label()
         Me.paramGrpB = New System.Windows.Forms.GroupBox()
         Me.filterGrpB = New System.Windows.Forms.GroupBox()
+        Me.chromTxtB = New System.Windows.Forms.TextBox()
         Me.chrFiltPanel = New System.Windows.Forms.Panel()
         Me.ovlpRadBtn = New System.Windows.Forms.RadioButton()
         Me.btwnRadBtn = New System.Windows.Forms.RadioButton()
         Me.statusStrip = New System.Windows.Forms.StatusStrip()
         Me.loadingLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.loadBGWorker = New System.ComponentModel.BackgroundWorker()
-        Me.chromTxtB = New System.Windows.Forms.TextBox()
         Me.menuStrip.SuspendLayout()
         Me.paramGrpB.SuspendLayout()
         Me.filterGrpB.SuspendLayout()
@@ -80,7 +79,7 @@ Partial Class MainForm
         '
         'FileMenu
         '
-        Me.FileMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.openMenuItem, Me.exportMenuItem, Me.ExitToolStripMenuItem})
+        Me.FileMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.openMenuItem, Me.ExitToolStripMenuItem})
         Me.FileMenu.Name = "FileMenu"
         Me.FileMenu.Size = New System.Drawing.Size(37, 20)
         Me.FileMenu.Text = "File"
@@ -89,21 +88,14 @@ Partial Class MainForm
         '
         Me.openMenuItem.Name = "openMenuItem"
         Me.openMenuItem.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.N), System.Windows.Forms.Keys)
-        Me.openMenuItem.Size = New System.Drawing.Size(187, 22)
+        Me.openMenuItem.Size = New System.Drawing.Size(167, 22)
         Me.openMenuItem.Text = "Open File"
         Me.openMenuItem.ToolTipText = "Select input for program."
-        '
-        'exportMenuItem
-        '
-        Me.exportMenuItem.Name = "exportMenuItem"
-        Me.exportMenuItem.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.E), System.Windows.Forms.Keys)
-        Me.exportMenuItem.Size = New System.Drawing.Size(187, 22)
-        Me.exportMenuItem.Text = "Export Results"
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(187, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(167, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'HelpMenu
@@ -116,14 +108,14 @@ Partial Class MainForm
         'HelpToolStripMenuItem
         '
         Me.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem"
-        Me.HelpToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
+        Me.HelpToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
         Me.HelpToolStripMenuItem.Text = "Help"
         Me.HelpToolStripMenuItem.ToolTipText = "Instructions for usage of program"
         '
         'AboutToolStripMenuItem
         '
         Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
         Me.AboutToolStripMenuItem.Text = "About"
         '
         'resetBtn
@@ -319,6 +311,13 @@ Partial Class MainForm
         Me.filterGrpB.TabStop = False
         Me.filterGrpB.Text = "Filters"
         '
+        'chromTxtB
+        '
+        Me.chromTxtB.Location = New System.Drawing.Point(6, 101)
+        Me.chromTxtB.Name = "chromTxtB"
+        Me.chromTxtB.Size = New System.Drawing.Size(150, 20)
+        Me.chromTxtB.TabIndex = 11
+        '
         'chrFiltPanel
         '
         Me.chrFiltPanel.Controls.Add(Me.ovlpRadBtn)
@@ -371,13 +370,6 @@ Partial Class MainForm
         Me.loadBGWorker.WorkerReportsProgress = True
         Me.loadBGWorker.WorkerSupportsCancellation = True
         '
-        'chromTxtB
-        '
-        Me.chromTxtB.Location = New System.Drawing.Point(6, 101)
-        Me.chromTxtB.Name = "chromTxtB"
-        Me.chromTxtB.Size = New System.Drawing.Size(150, 20)
-        Me.chromTxtB.TabIndex = 11
-        '
         'MainForm
         '
         Me.AllowDrop = True
@@ -419,7 +411,6 @@ Partial Class MainForm
     Friend WithEvents menuStrip As System.Windows.Forms.MenuStrip
     Friend WithEvents FileMenu As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents openMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents exportMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents HelpMenu As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents AboutToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ExitToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
