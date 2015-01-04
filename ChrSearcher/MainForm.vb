@@ -7,9 +7,9 @@ Public Class MainForm
     'Create global instances of the datatables and line count of the input file
     Dim helpForm As New HelpForm
     Dim searchTable As DataTable
-    Dim outputTable As DataTable
+    Dim paramTable As DataTable
     Dim lineCount As Integer
-
+    Dim colCount As Integer
 
 
     'Allows user to drag and drop input file into program
@@ -17,21 +17,13 @@ Public Class MainForm
         Dim files() As String = e.Data.GetData(DataFormats.FileDrop)
         Dim filePath As String = System.IO.Path.GetFullPath(files(0))
         Dim fileExt As String = System.IO.Path.GetExtension(files(0))
-        datasrcTxtB.Text = filePath
 
         If fileExt = ".txt" Then 'Checks to be sure the input is a .txt file
-            searchTable = makeSearchDataTable(filePath)
-            lineCount = 0
-            Dim reader As New IO.StreamReader(filePath)
-            Dim watch As Stopwatch = Stopwatch.StartNew()
-            While reader.ReadLine() <> Nothing
-                lineCount += 1
-            End While
-            watch.Stop()
-            MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
-                   + watch.Elapsed.Seconds().ToString() + " seconds.")
-        Else
-            MsgBox("Only .txt files are accepted.") 'Tells user only .txt files are accepted for input if they try to use different file type
+            Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
+            loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
+            loadingLabel.Text = "Loading...Please wait, this may take a few minutes."
+            datasrcTxtB.Text = filePath
+            loadBGWorker.RunWorkerAsync(filePath)
         End If
 
     End Sub
@@ -65,11 +57,13 @@ Public Class MainForm
     End Sub
 
 
-    'Clears the search parameters when the reset button is clicked.
+    'Clears the search parameters in the searchDataGridView when the reset button is clicked.
     Private Sub resetBtn_Click(sender As Object, e As EventArgs) Handles resetBtn.Click
-        startTxtB.Text = ""
-        endTxtB.Text = ""
-        mmpidTxtB.Text = ""
+        If colCount <> Nothing Then
+            For i As Integer = 0 To colCount - 1
+                searchDataGridView.Rows.Item(i).Cells.Item(i) = Nothing
+            Next
+        End If
     End Sub
 
     'Asks user if they really want to quit when Exit in the File menu is clicked. Only closes if they click yes. 
@@ -105,89 +99,93 @@ Public Class MainForm
         exportFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only saving as .txt file
         exportFD.ShowDialog()
 
-        If didWork = DialogResult.Cancel Then 'Handles if Cancel Button of dialog is clicked
-            Return
+        'If didWork = DialogResult.Cancel Then 'Handles if Cancel Button of dialog is clicked
+        'Return
+        'Else
+        'strFileName = exportFD.FileName
+        'Dim writer As New IO.StreamWriter(strFileName, True)
+        'Dim reader As New IO.StreamReader(datasrcTxtB.Text)
+        'Dim line As String
+        'Dim readRow() As String
+
+        'Resets progress bar and label
+        searchProgBar.Value = 0
+        searchProgLabel.Text = Nothing
+
+        'If mmpidTxtB.Text <> "" Or Nothing And geneTxtB.Text <> "" Or Nothing Then 'Checks that parameter is filled
+        'mmpidParam = Convert.ToInt64(mmpidTxtB.Text)
+        'geneParam = geneTxtB.Text
+
+        'Sets up progressbar
+        searchProgBar.Maximum = lineCount
+        searchProgBar.Visible = True
+        searchProgLabel.Visible = True
+
+        'Search whole file, line by line
+        'Do While reader.Peek() > 0
+        'line = reader.ReadLine()
+        'readRow = Split(line, vbTab)
+        'searchTable.Rows.Add(readRow) 'Add row to searchtable
+
+        'result = searchTable.Select("MMPID='" & mmpidParam & "'") 'Search for MMPID in the single row
+
+        'If search parameter is found in the newly added row, write it to new export file
+        ' If result.Count() > 0 Then
+        'result = searchTable.Select("GENE='" & geneParam & "'")
+        'If result.Count() > 0 Then
+        'Dim stringBuild As New System.Text.StringBuilder()
+
+        'Write headers of the search datatable first to export file
+        'While i < 1
+        'For Each column As DataColumn In searchTable.Columns
+        'stringBuild.Append(column.ColumnName + vbTab)
+        'Next
+        'i += 1
+        'Await writer.WriteLineAsync(stringBuild.ToString())
+        'stringBuild.Clear()
+        'End While
+
+        'Add the row to the export file, cell by cell
+        'For Each row As DataRow In result
+        'For cell As Integer = 0 To searchTable.Columns.Count - 1
+        'Dim cellContents As String
+        'cellContents = searchTable.Rows.Item(0).Item(cell).ToString()
+        'stringBuild.Append(cellContents + vbTab)
+        'Next
+        'Await writer.WriteLineAsync(stringBuild.ToString())
+        'stringBuild.Clear()
+        'Next
+
+        'searchHits += 1
+        'Debug.Print(searchHits)
+        'End If
+        'End If
+
+        searchTable.Rows(0).Delete() 'Delete the searched row
+
+        'Makes sure progress bar doesn't go out of range
+        If searchProgBar.Value = searchProgBar.Maximum Then
+
         Else
-            strFileName = exportFD.FileName
-            Dim writer As New IO.StreamWriter(strFileName, True)
-            Dim reader As New IO.StreamReader(datasrcTxtB.Text)
-            Dim line As String
-            Dim readRow() As String
-
-            'Resets progress bar and label
-            searchProgBar.Value = 0
-            searchProgLabel.Text = Nothing
-
-            If mmpidTxtB.Text <> "" Or Nothing Then 'Checks that parameter is filled
-                mmpidParam = Convert.ToInt64(mmpidTxtB.Text)
-
-                'Sets up progressbar
-                searchProgBar.Maximum = lineCount
-                searchProgBar.Visible = True
-                searchProgLabel.Visible = True
-
-                'Search whole file, line by line
-                Do While reader.Peek() > 0
-                    line = reader.ReadLine()
-                    readRow = Split(line, vbTab)
-                    searchTable.Rows.Add(readRow) 'Add row to searchtable
-
-                    result = searchTable.Select("MMPID='" & mmpidParam & "'") 'Search for MMPID in the single row
-
-                    'If search parameter is found in the newly added row, write it to new export file
-                    If result.Count() > 0 Then
-                        Dim stringBuild As New System.Text.StringBuilder()
-
-                        'Write headers of the search datatable first to export file
-                        While i < 1
-                            For Each column As DataColumn In searchTable.Columns
-                                stringBuild.Append(column.ColumnName + vbTab)
-                            Next
-                            i += 1
-                            Await writer.WriteLineAsync(stringBuild.ToString())
-                            stringBuild.Clear()
-                        End While
-
-                        'Add the row to the export file, cell by cell
-                        For Each row As DataRow In result
-                            For cell As Integer = 0 To searchTable.Columns.Count - 1
-                                Dim cellContents As String
-                                cellContents = searchTable.Rows.Item(0).Item(cell).ToString()
-                                stringBuild.Append(cellContents + vbTab)
-                            Next
-                            Await writer.WriteLineAsync(stringBuild.ToString())
-                            stringBuild.Clear()
-                        Next
-
-                        searchHits += 1
-                        Debug.Print(searchHits)
-                    End If
-
-                    searchTable.Rows(0).Delete() 'Delete the searched row
-
-                    'Makes sure progress bar doesn't go out of range
-                    If searchProgBar.Value = searchProgBar.Maximum Then
-
-                    Else
-                        searchProgBar.Value += 1 'Increase value of search bar for each line searched
-                    End If
-
-                    'Updates label for progress bar with percentage, time remaining.
-                    searchProgLabel.Text = "Running..." + (Int((searchProgBar.Value / searchProgBar.Maximum) * 100).ToString()) + "% Complete"
-                    searchProgLabel.Update() 'Must manually force since this function isn't asynchronous yet
-
-                Loop 'Move to next row in input file
-
-                searchTxtB.Text = searchHits 'Shows number of hits from search
-            Else
-                MsgBox("Please input a search parameter!", MsgBoxStyle.OkOnly, "No search parameters entered!")
-            End If
-
-            'Close out writer and reader and tell user file was saved
-            writer.Close()
-            reader.Close()
-            MsgBox("Saved to: " + strFileName)
+            searchProgBar.Value += 1 'Increase value of search bar for each line searched
         End If
+
+        'Updates label for progress bar with percentage, time remaining.
+        'searchProgLabel.Text = "Running..." + (Int((searchProgBar.Value / searchProgBar.Maximum) * 100).ToString()) + "% Complete"
+        'searchProgLabel.Update() 'Must manually force since this function isn't asynchronous yet
+
+        'Loop 'Move to next row in input file
+
+        'searchTxtB.Text = searchHits 'Shows number of hits from search
+        'Else
+        'MsgBox("Please input a search parameter!", MsgBoxStyle.OkOnly, "No search parameters entered!")
+        'End If
+
+        'Close out writer and reader and tell user file was saved
+        'writer.Close()
+        'reader.Close()
+        'MsgBox("Saved to: " + strFileName)
+        'End If
 
     End Sub
 
@@ -213,11 +211,36 @@ Public Class MainForm
         MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
                 + watch.Elapsed.Seconds().ToString() + " seconds.")
 
+        'Sets datatable to be used for user input for search parameters in datagridview
+        paramTable = searchTable.Clone()
+        paramTable.Rows.Add()
+
+        colCount = searchTable.Columns.Count()
+
+
     End Sub
 
     'Updates statusbar and returns cursor to normal after loadBGWorker finishes work.
     Private Sub loadBGWorker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles loadBGWorker.RunWorkerCompleted
+        Dim colCompare As String
         Me.Cursor = Cursors.Default
         loadingLabel.Text = "File loaded: " + lineCount.ToString() + " lines to search"
+        searchDataGridView.DataSource = paramTable
+        searchDataGridView.Rows.Item(0).ReadOnly = False
+
+        For Each column As DataColumn In searchTable.Columns
+            colCompare = column.ColumnName.Trim().ToUpper()
+            If colCompare = "GENE" OrElse colCompare = "CHR" OrElse colCompare = "SAMPLE_ID" _
+                OrElse colCompare = "CHROM" Then
+                column.DataType = System.Type.GetType("System.String")
+            ElseIf colCompare = "START" OrElse colCompare = "END" OrElse colCompare = "CHROMSTART" OrElse _
+                colCompare = "CHROMEND" OrElse colCompare = "MMPID" Then
+                column.DataType = System.Type.GetType("System.Int64")
+            Else
+                column.DataType = System.Type.GetType("System.Double")
+            End If
+        Next
     End Sub
+
+    
 End Class
