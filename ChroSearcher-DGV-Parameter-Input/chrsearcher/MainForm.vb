@@ -10,20 +10,21 @@ Public Class MainForm
     Dim paramTable As DataTable
     Dim lineCount As Integer
     Dim colCount As Integer
+    Dim filepath As String
 
 
     'Allows user to drag and drop input file into program
     Private Sub MainForm_DragDrop(sender As System.Object, e As System.Windows.Forms.DragEventArgs) Handles Me.DragDrop
         Dim files() As String = e.Data.GetData(DataFormats.FileDrop)
-        Dim filePath As String = System.IO.Path.GetFullPath(files(0))
+        filepath = System.IO.Path.GetFullPath(files(0))
         Dim fileExt As String = System.IO.Path.GetExtension(files(0))
 
         If fileExt = ".txt" Then 'Checks to be sure the input is a .txt file
             Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
             loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
             loadingLabel.Text = "Loading...Please wait, this may take a few minutes."
-            datasrcTxtB.Text = filePath
-            loadBGWorker.RunWorkerAsync(filePath)
+            datasrcTxtB.Text = filepath
+            loadBGWorker.RunWorkerAsync(filepath)
         End If
 
     End Sub
@@ -38,18 +39,17 @@ Public Class MainForm
     'Imports file for use as input by program when user uses File -> Import path. Also displays file path 
     'in datasrcTxtB for reference.
     Private Sub openMenuItem_Click(sender As Object, e As EventArgs) Handles openMenuItem.Click
-        Dim filePath As String = getFileImport() 'Returns the file path
+        filepath = getFileImport() 'Returns the file path
         Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
         loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
         loadingLabel.Text = "Loading...Please wait, this may take a few minutes."
 
         'If filepath isn't blank, then loads the select file using the loadBGWorker.
-        If filePath <> "" Then
-            datasrcTxtB.Text = filePath
-            loadBGWorker.RunWorkerAsync(filePath)
+        If filepath <> "" Then
+            datasrcTxtB.Text = filepath
+            loadBGWorker.RunWorkerAsync(filepath)
         End If
 
-        createSearchOptions(filePath)
 
     End Sub
 
@@ -60,20 +60,29 @@ Public Class MainForm
                 Dim tokenized() As String
                 Dim xPosition As Integer = 0
                 Dim yPosition As Integer = 0
+                Dim newRow As Double
 
                 'Clear any and all previous controls from the panel
                 criteriaPanel.Controls.Clear()
 
                 'Split line by tab characters
                 tokenized = Split(reader.ReadLine(), vbTab)
+                colCount = tokenized.Length
 
                 'Make textBoxes
                 For token As Integer = 0 To tokenized.Length - 1
                     'Make search criteria's controls
-                    createSearchCriteria(tokenized(token), xPosition)
+                    createSearchCriteria(tokenized(token), xPosition, yPosition)
 
+                    newRow = ((token + 1) / 4)
                     'Shift x-position
                     xPosition += 200
+
+                    If newRow = 1 Or newRow = 2 Or newRow = 3 Or newRow = 4 Or newRow = 5 Or newRow = 6 Then
+                        xPosition = 0
+                        yPosition += 220
+                    End If
+
                 Next
 
             End Using
@@ -83,7 +92,7 @@ Public Class MainForm
     End Sub
 
     'Make search criteria's controls
-    Private Sub createSearchCriteria(criteriaName As String, xPosition As Integer)
+    Private Sub createSearchCriteria(criteriaName As String, xPosition As Integer, yPosition As Integer)
         Dim radioBox As New GroupBox
 
         Dim criteriaCheckBox As New CheckBox
@@ -103,7 +112,7 @@ Public Class MainForm
         'groupbox for entire thing
         radioBox.Name = criteriaName & "GroupBox"
         radioBox.Text = ""
-        radioBox.Location = New Point(xPosition, 0)
+        radioBox.Location = New Point(xPosition, yPosition)
         radioBox.Size = New Size(190, 200)
         radioBox.Visible = True
         criteriaPanel.Controls.Add(radioBox)
@@ -274,11 +283,43 @@ Public Class MainForm
 
     'Clears the search parameters in the searchDataGridView when the reset button is clicked.
     Private Sub resetBtn_Click(sender As Object, e As EventArgs) Handles resetBtn.Click
-        If colCount <> Nothing Then
-            For i As Integer = 0 To colCount - 1
-                searchDataGridView.Rows.Item(i).Cells.Item(i) = Nothing
+
+        For Each grpBox As GroupBox In criteriaPanel.Controls.OfType(Of GroupBox)()
+
+            For Each radbutton As RadioButton In grpBox.Controls.OfType(Of RadioButton)()
+                radbutton.Checked = False
+                radbutton.Visible = False
             Next
-        End If
+
+            For Each cbox As CheckBox In grpBox.Controls.OfType(Of CheckBox)()
+                cbox.Checked = False
+
+            Next
+
+            For Each tbox As TextBox In grpBox.Controls.OfType(Of TextBox)()
+                tbox.Text = vbNullString
+                tbox.Visible = False
+            Next
+
+            For Each updown As NumericUpDown In grpBox.Controls.OfType(Of NumericUpDown)()
+                updown.Value = 0
+                updown.Visible = False
+            Next
+
+            For Each lbl As Label In grpBox.Controls.OfType(Of Label)()
+                lbl.Visible = False
+            Next
+
+            For Each chkbox As CheckBox In grpBox.Controls.OfType(Of CheckBox)()
+                If chkbox.Text = "Inclusive" Then
+                    chkbox.Checked = False
+                    chkbox.Visible = False
+                End If
+            Next
+        Next
+
+        Me.Update()
+
     End Sub
 
     'Asks user if they really want to quit when Exit in the File menu is clicked. Only closes if they click yes. 
@@ -299,9 +340,10 @@ Public Class MainForm
     Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim strFileName As String
         Dim didWork As Integer
+        Dim searchHits As Integer
 
         'Prompts user to enter title of file to be created
-        exportFD.Title = "Save as a text file"
+        exportFD.Title = "Save as. . ."
         exportFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only saving as .txt file
         exportFD.ShowDialog()
 
@@ -313,14 +355,16 @@ Public Class MainForm
             Dim reader As New IO.StreamReader(datasrcTxtB.Text)
             Dim currentLine As String
 
+
+            'Skip first line of SOURCE text file for search, but use it to write column headers to file
+            currentLine = reader.ReadLine()
+            Dim columnLine = currentLine.Split(vbTab)
+
             'First: Insert column names into NEW text file
-            For col As Integer = 0 To searchTable.Columns.Count - 1
-                writer.Write(searchTable.Columns.Item(col).ColumnName & vbTab)
+            For col As Integer = 0 To colCount - 1
+                writer.Write(columnLine(col) & vbTab)
             Next
             writer.Write(vbNewLine)
-
-            'Skip first line of SOURCE text file
-            currentLine = reader.ReadLine()
 
             'Search whole file, line by line
             Do While reader.Peek() > 0
@@ -330,12 +374,14 @@ Public Class MainForm
                 'new function:
                 If validChromosome(currentLine) Then
                     writer.WriteLine(currentLine)
+                    searchHits += 1
                 End If
             Loop
 
             'Close out writer and reader and tell user file was saved
             writer.Close()
             reader.Close()
+            searchTxtB.Text = searchHits.ToString()
             MsgBox("Saved to: " + strFileName)
         End If
 
@@ -437,8 +483,6 @@ Public Class MainForm
         Dim reader As New IO.StreamReader(filepath)
         lineCount = 0 'Resets lineCount variable of loaded file
 
-        searchTable = makeSearchDataTable(filepath) 'Makes search datatable from file
-
         While reader.ReadLine() <> Nothing 'Counts lines of file
             lineCount += 1
         End While
@@ -449,34 +493,13 @@ Public Class MainForm
         MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
                 + watch.Elapsed.Seconds().ToString() + " seconds.")
 
-        'Sets datatable to be used for user input for search parameters in datagridview
-        paramTable = searchTable.Clone()
-        paramTable.Rows.Add()
-
-        colCount = searchTable.Columns.Count()
-
-
     End Sub
 
     'Updates statusbar and returns cursor to normal after loadBGWorker finishes work.
     Private Sub loadBGWorker_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles loadBGWorker.RunWorkerCompleted
-        Dim colCompare As String
         Me.Cursor = Cursors.Default
         loadingLabel.Text = "File loaded: " + lineCount.ToString() + " lines to search"
-        searchDataGridView.DataSource = paramTable
-        searchDataGridView.Rows.Item(0).ReadOnly = False
 
-        For Each column As DataColumn In searchTable.Columns
-            colCompare = column.ColumnName.Trim().ToUpper()
-            If colCompare = "GENE" OrElse colCompare = "CHR" OrElse colCompare = "SAMPLE_ID" _
-                OrElse colCompare = "CHROM" Then
-                column.DataType = System.Type.GetType("System.String")
-            ElseIf colCompare = "START" OrElse colCompare = "END" OrElse colCompare = "CHROMSTART" OrElse _
-                colCompare = "CHROMEND" OrElse colCompare = "MMPID" Then
-                column.DataType = System.Type.GetType("System.Int64")
-            Else
-                column.DataType = System.Type.GetType("System.Double")
-            End If
-        Next
+        createSearchOptions(filePath)
     End Sub
 End Class

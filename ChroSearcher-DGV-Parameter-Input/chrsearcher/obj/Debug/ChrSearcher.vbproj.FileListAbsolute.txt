@@ -34,3 +34,19 @@ C:\Users\Jared\Downloads\ChroSearcher-DGV-Parameter-Input\ChroSearcher-DGV-Param
 C:\Users\Jared\Downloads\ChroSearcher-DGV-Parameter-Input\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.exe
 C:\Users\Jared\Downloads\ChroSearcher-DGV-Parameter-Input\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.xml
 C:\Users\Jared\Downloads\ChroSearcher-DGV-Parameter-Input\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.pdb
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\bin\Debug\ChroSearch.exe.config
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.exe
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.xml
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.pdb
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\bin\Debug\ChroSearch.exe.manifest
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\bin\Debug\ChroSearch.application
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\bin\Debug\ChroSearch.exe
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\bin\Debug\ChroSearch.pdb
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\bin\Debug\ChroSearch.xml
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.ChrSearchSplash.resources
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.MainForm.resources
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.HelpForm.resources
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.Resources.resources
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChrSearcher.vbproj.GenerateResource.Cache
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.exe.manifest
+C:\Users\Jared\Documents\Visual Studio 2013\Projects\ChrSearcher\ChroSearcher-DGV-Parameter-Input\ChrSearcher\obj\Debug\ChroSearch.application

@@ -46,11 +46,9 @@ Partial Class MainForm
         Me.statusStrip = New System.Windows.Forms.StatusStrip()
         Me.loadingLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.loadBGWorker = New System.ComponentModel.BackgroundWorker()
-        Me.searchDataGridView = New System.Windows.Forms.DataGridView()
         Me.criteriaPanel = New System.Windows.Forms.Panel()
         Me.menuStrip.SuspendLayout()
         Me.statusStrip.SuspendLayout()
-        CType(Me.searchDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'menuStrip
@@ -58,7 +56,7 @@ Partial Class MainForm
         Me.menuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileMenu, Me.HelpMenu})
         Me.menuStrip.Location = New System.Drawing.Point(0, 0)
         Me.menuStrip.Name = "menuStrip"
-        Me.menuStrip.Size = New System.Drawing.Size(792, 24)
+        Me.menuStrip.Size = New System.Drawing.Size(836, 24)
         Me.menuStrip.TabIndex = 5
         '
         'FileMenu
@@ -113,9 +111,9 @@ Partial Class MainForm
         '
         Me.resetBtn.Location = New System.Drawing.Point(437, 307)
         Me.resetBtn.Name = "resetBtn"
-        Me.resetBtn.Size = New System.Drawing.Size(75, 23)
+        Me.resetBtn.Size = New System.Drawing.Size(100, 23)
         Me.resetBtn.TabIndex = 1
-        Me.resetBtn.Text = "Reset"
+        Me.resetBtn.Text = "Reset Parameters"
         Me.resetTT.SetToolTip(Me.resetBtn, "Clears all search parameters.")
         Me.resetBtn.UseVisualStyleBackColor = True
         '
@@ -187,7 +185,7 @@ Partial Class MainForm
         Me.statusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.loadingLabel})
         Me.statusStrip.Location = New System.Drawing.Point(0, 348)
         Me.statusStrip.Name = "statusStrip"
-        Me.statusStrip.Size = New System.Drawing.Size(792, 22)
+        Me.statusStrip.Size = New System.Drawing.Size(836, 22)
         Me.statusStrip.TabIndex = 24
         Me.statusStrip.UseWaitCursor = True
         '
@@ -203,23 +201,12 @@ Partial Class MainForm
         Me.loadBGWorker.WorkerReportsProgress = True
         Me.loadBGWorker.WorkerSupportsCancellation = True
         '
-        'searchDataGridView
-        '
-        Me.searchDataGridView.AllowUserToAddRows = False
-        Me.searchDataGridView.AllowUserToDeleteRows = False
-        Me.searchDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.searchDataGridView.Location = New System.Drawing.Point(745, 312)
-        Me.searchDataGridView.Name = "searchDataGridView"
-        Me.searchDataGridView.RowHeadersVisible = False
-        Me.searchDataGridView.Size = New System.Drawing.Size(10, 10)
-        Me.searchDataGridView.TabIndex = 2
-        '
         'criteriaPanel
         '
         Me.criteriaPanel.AutoScroll = True
         Me.criteriaPanel.Location = New System.Drawing.Point(12, 53)
         Me.criteriaPanel.Name = "criteriaPanel"
-        Me.criteriaPanel.Size = New System.Drawing.Size(771, 238)
+        Me.criteriaPanel.Size = New System.Drawing.Size(814, 238)
         Me.criteriaPanel.TabIndex = 25
         '
         'MainForm
@@ -227,8 +214,7 @@ Partial Class MainForm
         Me.AllowDrop = True
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(792, 370)
-        Me.Controls.Add(Me.searchDataGridView)
+        Me.ClientSize = New System.Drawing.Size(836, 370)
         Me.Controls.Add(Me.criteriaPanel)
         Me.Controls.Add(Me.statusStrip)
         Me.Controls.Add(Me.searchTxtB)
@@ -250,7 +236,6 @@ Partial Class MainForm
         Me.menuStrip.PerformLayout()
         Me.statusStrip.ResumeLayout(False)
         Me.statusStrip.PerformLayout()
-        CType(Me.searchDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -277,7 +262,6 @@ Partial Class MainForm
     Friend WithEvents statusStrip As System.Windows.Forms.StatusStrip
     Friend WithEvents loadingLabel As System.Windows.Forms.ToolStripStatusLabel
     Friend WithEvents loadBGWorker As System.ComponentModel.BackgroundWorker
-    Friend WithEvents searchDataGridView As System.Windows.Forms.DataGridView
     Friend WithEvents criteriaPanel As System.Windows.Forms.Panel
 
 End Class
