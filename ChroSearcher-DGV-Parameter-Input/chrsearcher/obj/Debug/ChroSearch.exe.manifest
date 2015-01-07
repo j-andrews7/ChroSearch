@@ -43,24 +43,24 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ChroSearch.exe" size="98744">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="ChroSearch.exe" size="81848">
       <assemblyIdentity name="ChroSearch" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>qESs9CqZBvQuOuV9KHlZ44cEuMDHuEX6qEth9KIzXs4=</dsig:DigestValue>
+        <dsig:DigestValue>uUGFY4XA3+sGyylkPb42JxdlFfs5F+ou5wKfcIP5jkg=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="ChroSearch.exe.config" size="186">
+  <file name="ChroSearch.exe.config" size="181">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>h0UeIdteCM29dGVw07LmHp593fPbh0IN11GyN3f2uRA=</dsig:DigestValue>
+      <dsig:DigestValue>HcmCMwiql3br8Fmt6LCgG63bfyQCl0lkdoWbJD0n1BY=</dsig:DigestValue>
     </hash>
   </file>
   <file name="ChrSearch Icon.ico" size="894">

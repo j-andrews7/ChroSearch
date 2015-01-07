@@ -43,21 +43,14 @@ Partial Class MainForm
         Me.searLabel = New System.Windows.Forms.Label()
         Me.searchTxtB = New System.Windows.Forms.TextBox()
         Me.searchBtn = New System.Windows.Forms.Button()
-        Me.filterGrpB = New System.Windows.Forms.GroupBox()
-        Me.searchDataGridView = New System.Windows.Forms.DataGridView()
-        Me.chrFiltPanel = New System.Windows.Forms.Panel()
-        Me.ovlpRadBtn = New System.Windows.Forms.RadioButton()
-        Me.btwnRadBtn = New System.Windows.Forms.RadioButton()
         Me.statusStrip = New System.Windows.Forms.StatusStrip()
         Me.loadingLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.loadBGWorker = New System.ComponentModel.BackgroundWorker()
-        Me.optionsGrpB = New System.Windows.Forms.GroupBox()
+        Me.searchDataGridView = New System.Windows.Forms.DataGridView()
+        Me.criteriaPanel = New System.Windows.Forms.Panel()
         Me.menuStrip.SuspendLayout()
-        Me.filterGrpB.SuspendLayout()
-        CType(Me.searchDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.chrFiltPanel.SuspendLayout()
         Me.statusStrip.SuspendLayout()
-        Me.optionsGrpB.SuspendLayout()
+        CType(Me.searchDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'menuStrip
@@ -189,59 +182,6 @@ Partial Class MainForm
         Me.searchBtn.Text = "Search"
         Me.searchBtn.UseVisualStyleBackColor = True
         '
-        'filterGrpB
-        '
-        Me.filterGrpB.Controls.Add(Me.optionsGrpB)
-        Me.filterGrpB.Controls.Add(Me.searchDataGridView)
-        Me.filterGrpB.Location = New System.Drawing.Point(12, 60)
-        Me.filterGrpB.Name = "filterGrpB"
-        Me.filterGrpB.Size = New System.Drawing.Size(771, 231)
-        Me.filterGrpB.TabIndex = 23
-        Me.filterGrpB.TabStop = False
-        Me.filterGrpB.Text = "Filters"
-        '
-        'searchDataGridView
-        '
-        Me.searchDataGridView.AllowUserToAddRows = False
-        Me.searchDataGridView.AllowUserToDeleteRows = False
-        Me.searchDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.searchDataGridView.Location = New System.Drawing.Point(6, 19)
-        Me.searchDataGridView.Name = "searchDataGridView"
-        Me.searchDataGridView.RowHeadersVisible = False
-        Me.searchDataGridView.Size = New System.Drawing.Size(759, 63)
-        Me.searchDataGridView.TabIndex = 2
-        '
-        'chrFiltPanel
-        '
-        Me.chrFiltPanel.Controls.Add(Me.ovlpRadBtn)
-        Me.chrFiltPanel.Controls.Add(Me.btwnRadBtn)
-        Me.chrFiltPanel.Location = New System.Drawing.Point(6, 19)
-        Me.chrFiltPanel.Name = "chrFiltPanel"
-        Me.chrFiltPanel.Size = New System.Drawing.Size(118, 57)
-        Me.chrFiltPanel.TabIndex = 10
-        '
-        'ovlpRadBtn
-        '
-        Me.ovlpRadBtn.AutoSize = True
-        Me.ovlpRadBtn.Location = New System.Drawing.Point(3, 23)
-        Me.ovlpRadBtn.Name = "ovlpRadBtn"
-        Me.ovlpRadBtn.Size = New System.Drawing.Size(106, 30)
-        Me.ovlpRadBtn.TabIndex = 1
-        Me.ovlpRadBtn.TabStop = True
-        Me.ovlpRadBtn.Text = "Overlapping " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Start/End Range"
-        Me.ovlpRadBtn.UseVisualStyleBackColor = True
-        '
-        'btwnRadBtn
-        '
-        Me.btwnRadBtn.AutoSize = True
-        Me.btwnRadBtn.Location = New System.Drawing.Point(3, 0)
-        Me.btwnRadBtn.Name = "btwnRadBtn"
-        Me.btwnRadBtn.Size = New System.Drawing.Size(116, 17)
-        Me.btwnRadBtn.TabIndex = 0
-        Me.btwnRadBtn.TabStop = True
-        Me.btwnRadBtn.Text = "Between Start/End"
-        Me.btwnRadBtn.UseVisualStyleBackColor = True
-        '
         'statusStrip
         '
         Me.statusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.loadingLabel})
@@ -263,15 +203,24 @@ Partial Class MainForm
         Me.loadBGWorker.WorkerReportsProgress = True
         Me.loadBGWorker.WorkerSupportsCancellation = True
         '
-        'optionsGrpB
+        'searchDataGridView
         '
-        Me.optionsGrpB.Controls.Add(Me.chrFiltPanel)
-        Me.optionsGrpB.Location = New System.Drawing.Point(6, 88)
-        Me.optionsGrpB.Name = "optionsGrpB"
-        Me.optionsGrpB.Size = New System.Drawing.Size(759, 137)
-        Me.optionsGrpB.TabIndex = 11
-        Me.optionsGrpB.TabStop = False
-        Me.optionsGrpB.Text = "Options"
+        Me.searchDataGridView.AllowUserToAddRows = False
+        Me.searchDataGridView.AllowUserToDeleteRows = False
+        Me.searchDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.searchDataGridView.Location = New System.Drawing.Point(745, 312)
+        Me.searchDataGridView.Name = "searchDataGridView"
+        Me.searchDataGridView.RowHeadersVisible = False
+        Me.searchDataGridView.Size = New System.Drawing.Size(10, 10)
+        Me.searchDataGridView.TabIndex = 2
+        '
+        'criteriaPanel
+        '
+        Me.criteriaPanel.AutoScroll = True
+        Me.criteriaPanel.Location = New System.Drawing.Point(12, 53)
+        Me.criteriaPanel.Name = "criteriaPanel"
+        Me.criteriaPanel.Size = New System.Drawing.Size(771, 238)
+        Me.criteriaPanel.TabIndex = 25
         '
         'MainForm
         '
@@ -279,8 +228,9 @@ Partial Class MainForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(792, 370)
+        Me.Controls.Add(Me.searchDataGridView)
+        Me.Controls.Add(Me.criteriaPanel)
         Me.Controls.Add(Me.statusStrip)
-        Me.Controls.Add(Me.filterGrpB)
         Me.Controls.Add(Me.searchTxtB)
         Me.Controls.Add(Me.searLabel)
         Me.Controls.Add(Me.searchProgLabel)
@@ -298,13 +248,9 @@ Partial Class MainForm
         Me.Text = "ChroSearch"
         Me.menuStrip.ResumeLayout(False)
         Me.menuStrip.PerformLayout()
-        Me.filterGrpB.ResumeLayout(False)
-        CType(Me.searchDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.chrFiltPanel.ResumeLayout(False)
-        Me.chrFiltPanel.PerformLayout()
         Me.statusStrip.ResumeLayout(False)
         Me.statusStrip.PerformLayout()
-        Me.optionsGrpB.ResumeLayout(False)
+        CType(Me.searchDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -328,14 +274,10 @@ Partial Class MainForm
     Friend WithEvents searchTxtB As System.Windows.Forms.TextBox
     Friend WithEvents searchBtn As System.Windows.Forms.Button
     Friend WithEvents resetBtn As System.Windows.Forms.Button
-    Friend WithEvents filterGrpB As System.Windows.Forms.GroupBox
-    Friend WithEvents chrFiltPanel As System.Windows.Forms.Panel
-    Friend WithEvents ovlpRadBtn As System.Windows.Forms.RadioButton
-    Friend WithEvents btwnRadBtn As System.Windows.Forms.RadioButton
     Friend WithEvents statusStrip As System.Windows.Forms.StatusStrip
     Friend WithEvents loadingLabel As System.Windows.Forms.ToolStripStatusLabel
     Friend WithEvents loadBGWorker As System.ComponentModel.BackgroundWorker
     Friend WithEvents searchDataGridView As System.Windows.Forms.DataGridView
-    Friend WithEvents optionsGrpB As System.Windows.Forms.GroupBox
+    Friend WithEvents criteriaPanel As System.Windows.Forms.Panel
 
 End Class
