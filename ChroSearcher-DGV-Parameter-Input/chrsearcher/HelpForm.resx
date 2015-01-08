@@ -119,22 +119,13 @@
   </resheader>
   <data name="instrTxtB.Text" xml:space="preserve">
     <value>1. Select your file for search by dragging it into the program or using the
-"Open File" option from the File menu.
-Note: Analyzing and loading the file may take some, up to 5 minutes for very 
-large files (&gt;10GB).
+"Open File" option from the File menu. Note: Analyzing and loading the file may take some, up to 5 minutes for very large files (&gt;10GB). The application should display a small box for each column in the file.
 
-2. Enter your search parameters into the text boxes. If necessary, select the 
-chromosomes to which the search should be limited. At least one search 
-parameter should be entered or chromosome filtering applied for the search
-to yield any results differing from the original file.
+2. Check each column for which you'd like to filter your results. For columns with text data, such as chromosomes, gene names, sample names, etc, select the "Text Search" option. For columns with numerical data, select the "Numerical Search" option.
 
-3. Apply any filters using the text boxes and drop down menus for each of the 
-columns in the file.
+3. Enter your search parameters in the appropriate text boxes. If you would like to include the number you enter for numerical searches, check the "Inclusive" box under the field.
 
-4. Hit the "Search" button to search the file. You will be prompted to select
-a location and name for the search results file that will be generated.
-The search may take some time (up to 30 minutes for large files and many 
-search parameters/filters). </value>
+4. Hit the "Search" button to search the file. You will be prompted to select a location and name for the search results file that will be generated. The search may take some time (up to 10 minutes for large files).</value>
   </data>
   <data name="troubleTxtB.Text" xml:space="preserve">
     <value>"The program isn't searching for MMPIDs, Sample IDs, Genes correctly!"

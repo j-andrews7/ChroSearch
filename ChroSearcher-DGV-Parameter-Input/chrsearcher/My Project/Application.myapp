@@ -6,6 +6,6 @@
   <ShutdownMode>0</ShutdownMode>
   <EnableVisualStyles>true</EnableVisualStyles>
   <AuthenticationMode>0</AuthenticationMode>
-  <SplashScreen>ChrSearchSplash</SplashScreen>
+  <SplashScreen>ChroSearchSplash</SplashScreen>
   <SaveMySettingsOnExit>true</SaveMySettingsOnExit>
 </MyApplicationData>

@@ -1,4 +1,4 @@
-﻿Public NotInheritable Class ChrSearchSplash
+﻿Public NotInheritable Class ChroSearchSplash
 
     'TODO: This form can easily be set as the splash screen for the application by going to the "Application" tab
     '  of the Project Designer ("Properties" under the "Project" menu).
@@ -11,7 +11,7 @@
         '  properties dialog (under the "Project" menu).
 
         'Application title
-        
+
 
         'Format the version information using the text set into the Version control at design time as the
         '  formatting string.  This allows for effective localization if desired.
@@ -19,7 +19,7 @@
         '  Version control's designtime text to "Version {0}.{1:00}.{2}.{3}" or something similar.  See
         '  String.Format() in Help for more information.
         '
-        '    Version.Text = System.String.Format(Version.Text, My.Application.Info.Version.Major, My.Application.Info.Version.Minor, My.Application.Info.Version.Build, My.Application.Info.Version.Revision)
+        'Version.Text = System.String.Format(Version.Text, My.Application.Info.Version.Major, My.Application.Info.Version.Minor, My.Application.Info.Version.Build, My.Application.Info.Version.Revision)
 
         Version.Text = FileVersionInfo.GetVersionInfo(Application.ExecutablePath).FileVersion
 
@@ -27,5 +27,5 @@
         Copyright.Text = My.Application.Info.Copyright
     End Sub
 
-    
+
 End Class

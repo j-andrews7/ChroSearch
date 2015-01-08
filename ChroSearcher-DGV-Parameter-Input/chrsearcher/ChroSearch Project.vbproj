@@ -24,7 +24,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>2</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -75,7 +75,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>ChrSearch Icon.ico</ApplicationIcon>
+    <ApplicationIcon>ChroSearch Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -126,10 +126,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationEvents.vb" />
-    <Compile Include="ChrSearchSplash.Designer.vb">
-      <DependentUpon>ChrSearchSplash.vb</DependentUpon>
+    <Compile Include="ChroSearchSplash.Designer.vb">
+      <DependentUpon>ChroSearchSplash.vb</DependentUpon>
     </Compile>
-    <Compile Include="ChrSearchSplash.vb">
+    <Compile Include="ChroSearchSplash.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.vb">
@@ -163,8 +163,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ChrSearchSplash.resx">
-      <DependentUpon>ChrSearchSplash.vb</DependentUpon>
+    <EmbeddedResource Include="ChroSearchSplash.resx">
+      <DependentUpon>ChroSearchSplash.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.vb</DependentUpon>
@@ -210,7 +210,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ChrSearch Icon.ico" />
+    <Content Include="ChroSearch Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

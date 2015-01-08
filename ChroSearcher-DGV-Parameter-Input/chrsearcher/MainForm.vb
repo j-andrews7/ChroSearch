@@ -13,6 +13,25 @@ Public Class MainForm
     Dim filepath As String
 
 
+
+    'Imports the file and returns the file path.
+    Public Function getFileImport() As String
+        Dim strFileName As String = ""
+        Dim didWork As Integer
+        Dim importFD As New OpenFileDialog
+
+        importFD.Title = "Open a text file"
+        importFD.Filter = "Text Files(*.txt)|*.txt" 'Limits user to only opening .txt files.
+        importFD.ShowDialog()
+        If didWork = DialogResult.Cancel Then 'Only recording path if file is actually opened.
+            MsgBox("File Does Not Exist")
+        Else
+            strFileName = importFD.FileName
+        End If
+
+        Return strFileName
+    End Function
+
     'Allows user to drag and drop input file into program
     Private Sub MainForm_DragDrop(sender As System.Object, e As System.Windows.Forms.DragEventArgs) Handles Me.DragDrop
         Dim files() As String = e.Data.GetData(DataFormats.FileDrop)
@@ -78,7 +97,8 @@ Public Class MainForm
                     'Shift x-position
                     xPosition += 200
 
-                    If newRow = 1 Or newRow = 2 Or newRow = 3 Or newRow = 4 Or newRow = 5 Or newRow = 6 Then
+                    If newRow = 1 Or newRow = 2 Or newRow = 3 Or newRow = 4 Or newRow = 5 Or newRow = 6 _
+                        Or newRow = 7 Or newRow = 8 Or newRow = 9 Then
                         xPosition = 0
                         yPosition += 220
                     End If
@@ -157,15 +177,21 @@ Public Class MainForm
 
         'NUMERIC SEARCH
         numericBoxLower.Name = "NumericBoxLower"
-        numericBoxLower.Location = New Point(25, 105)
-        numericBoxLower.Width = 50
+        numericBoxLower.Location = New Point(7, 105)
+        numericBoxLower.Width = 80
         numericBoxLower.Visible = False
+        numericBoxLower.Maximum = 1000000000000
+        numericBoxLower.Minimum = -1000000000000
+        numericBoxLower.DecimalPlaces = 3
         radioBox.Controls.Add(numericBoxLower)
 
         numericBoxUpper.Name = "NumericBoxUpper"
         numericBoxUpper.Location = New Point(105, 105)
-        numericBoxUpper.Width = 50
+        numericBoxUpper.Width = 80
         numericBoxUpper.Visible = False
+        numericBoxUpper.Maximum = 1000000000000
+        numericBoxUpper.Minimum = -1000000000000
+        numericBoxUpper.DecimalPlaces = 3
         radioBox.Controls.Add(numericBoxUpper)
 
         numericLabel1.Name = "NumericLabel1"
@@ -175,8 +201,9 @@ Public Class MainForm
         radioBox.Controls.Add(numericLabel1)
 
         numericLabel2.Name = "NumericLabel2"
-        numericLabel2.Text = "and"
-        numericLabel2.Location = New Point(79, 108)
+        numericLabel2.Text = "&"
+        numericLabel2.UseMnemonic = False
+        numericLabel2.Location = New Point(89, 108)
         numericLabel2.Visible = False
         radioBox.Controls.Add(numericLabel2)
 
