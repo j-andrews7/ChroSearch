@@ -61,7 +61,7 @@ Public Class MainForm
         filepath = getFileImport() 'Returns the file path
         Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
         loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
-        loadingLabel.Text = "Loading...Please wait, this may take a few minutes."
+        loadingLabel.Text = "Loading...Please wait, this may take a minute."
 
         'If filepath isn't blank, then loads the select file using the loadBGWorker.
         If filepath <> "" Then
@@ -364,10 +364,11 @@ Public Class MainForm
     End Sub
 
     'Searches the loaded file
-    Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
+    Private Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim strFileName As String
         Dim didWork As Integer
         Dim searchHits As Integer
+        Dim watch As Stopwatch = Stopwatch.StartNew()
 
         'Prompts user to enter title of file to be created
         exportFD.Title = "Save as. . ."
@@ -379,7 +380,7 @@ Public Class MainForm
         Else
             strFileName = exportFD.FileName
             Dim writer As New IO.StreamWriter(strFileName, False) 'False because I -think- we want to overwrite, not append
-            Dim reader As New IO.StreamReader(datasrcTxtB.Text)
+            Dim reader As New IO.StreamReader(filepath)
             Dim currentLine As String
 
 
@@ -400,7 +401,10 @@ Public Class MainForm
 
                 'new function:
                 If validChromosome(currentLine) Then
+                    'Dim writeWatch As Stopwatch = Stopwatch.StartNew()
                     writer.WriteLine(currentLine)
+                    'writeWatch.Stop()
+                    'Debug.Print("Write time: " + writeWatch.Elapsed.ToString())
                     searchHits += 1
                 End If
             Loop
@@ -409,21 +413,23 @@ Public Class MainForm
             writer.Close()
             reader.Close()
             searchTxtB.Text = searchHits.ToString()
-            MsgBox("Saved to: " + strFileName)
+            watch.Stop()
+            MsgBox("Searched in: " + watch.Elapsed.ToString() + " and saved to: " + strFileName)
         End If
 
     End Sub
 
     'This function searches through the current chromosome and checks if it follows what the user has searched for
     Private Function validChromosome(chromString As String) As Boolean
-        Dim readRow() As String
+        'Dim watch As Stopwatch = Stopwatch.StartNew()
+        'Split line by delimiter
+        Dim readRow() As String = Split(chromString, vbTab)
         validChromosome = True 'Start off as true
 
-        'Split line by tab characters
-        readRow = Split(chromString, vbTab)
+        Dim rowLength As Integer = readRow.Length - 1
 
         'iterate through string tokens and compare (simple comparison for now, this working will be a miracle in itself)
-        For token As Integer = 0 To readRow.Length - 1
+        For token As Integer = 0 To rowLength
             Try
                 Dim currentGroupBox As GroupBox = criteriaPanel.Controls.Item(token)
                 Dim checkedParameter As CheckBox = currentGroupBox.Controls("CheckBox")
@@ -457,7 +463,7 @@ Public Class MainForm
                         Dim textBox As TextBox = currentGroupBox.Controls("TextBox")
 
                         'If the comparison failed, then this chromosome is not valid. Break out of loop and return false
-                        If readRow(token) <> textBox.Text.ToString() Then
+                        If Not [String].Equals(readRow(token), textBox.Text.ToString(), StringComparison.OrdinalIgnoreCase) Then
 
                             validChromosome = False
                             Exit For
@@ -477,6 +483,9 @@ Public Class MainForm
 
             End Try
         Next
+
+        'watch.Stop()
+        'Debug.Print("Search Time: " + watch.Elapsed.ToString())
 
     End Function
 
@@ -507,17 +516,17 @@ Public Class MainForm
         Dim worker As BackgroundWorker = CType(sender, BackgroundWorker)
         Dim filepath As String = e.Argument 'Argument passed to determine filepath
         Dim watch As Stopwatch = Stopwatch.StartNew() 'Times loading
-        Dim reader As New IO.StreamReader(filepath)
-        lineCount = 0 'Resets lineCount variable of loaded file
+        Dim fileInfo As New IO.FileInfo(filepath)
+        Dim fileLenKB As Long = fileInfo.Length / 1024
+        Dim fileLenKBInt As Integer = CInt(fileLenKB)
 
-        While reader.ReadLine() <> Nothing 'Counts lines of file
-            lineCount += 1
-        End While
+        Dim lineCount As Integer = IO.File.ReadLines(filepath).Count
+        
 
         watch.Stop()
-        lineCount -= 1 'Removes a line to account for the headers
+        'lineCount -= 1 'Removes a line to account for the headers
 
-        MsgBox(lineCount.ToString() + " lines searched in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
+        MsgBox(fileLenKB.ToString() + " KB file loaded in " + watch.Elapsed.Minutes().ToString() + " minutes and " _
                 + watch.Elapsed.Seconds().ToString() + " seconds.")
 
     End Sub
