@@ -38,15 +38,15 @@ Partial Class MainForm
         Me.datasrcLabel = New System.Windows.Forms.Label()
         Me.importFD = New System.Windows.Forms.OpenFileDialog()
         Me.exportFD = New System.Windows.Forms.SaveFileDialog()
-        Me.searchProgBar = New System.Windows.Forms.ProgressBar()
-        Me.searchProgLabel = New System.Windows.Forms.Label()
         Me.searLabel = New System.Windows.Forms.Label()
         Me.searchTxtB = New System.Windows.Forms.TextBox()
         Me.searchBtn = New System.Windows.Forms.Button()
         Me.statusStrip = New System.Windows.Forms.StatusStrip()
         Me.loadingLabel = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.searchProgBar = New System.Windows.Forms.ToolStripProgressBar()
         Me.loadBGWorker = New System.ComponentModel.BackgroundWorker()
         Me.criteriaPanel = New System.Windows.Forms.Panel()
+        Me.progTimer = New System.Windows.Forms.Timer(Me.components)
         Me.menuStrip.SuspendLayout()
         Me.statusStrip.SuspendLayout()
         Me.SuspendLayout()
@@ -109,7 +109,7 @@ Partial Class MainForm
         '
         'resetBtn
         '
-        Me.resetBtn.Location = New System.Drawing.Point(437, 307)
+        Me.resetBtn.Location = New System.Drawing.Point(429, 271)
         Me.resetBtn.Name = "resetBtn"
         Me.resetBtn.Size = New System.Drawing.Size(100, 23)
         Me.resetBtn.TabIndex = 1
@@ -134,30 +134,10 @@ Partial Class MainForm
         Me.datasrcLabel.TabIndex = 11
         Me.datasrcLabel.Text = "Data Source:"
         '
-        'searchProgBar
-        '
-        Me.searchProgBar.Location = New System.Drawing.Point(40, 317)
-        Me.searchProgBar.Name = "searchProgBar"
-        Me.searchProgBar.Size = New System.Drawing.Size(200, 21)
-        Me.searchProgBar.Step = 1
-        Me.searchProgBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
-        Me.searchProgBar.TabIndex = 18
-        Me.searchProgBar.Visible = False
-        '
-        'searchProgLabel
-        '
-        Me.searchProgLabel.AutoSize = True
-        Me.searchProgLabel.Location = New System.Drawing.Point(40, 301)
-        Me.searchProgLabel.Name = "searchProgLabel"
-        Me.searchProgLabel.Size = New System.Drawing.Size(62, 13)
-        Me.searchProgLabel.TabIndex = 19
-        Me.searchProgLabel.Text = "Running. . ."
-        Me.searchProgLabel.Visible = False
-        '
         'searLabel
         '
         Me.searLabel.AutoSize = True
-        Me.searLabel.Location = New System.Drawing.Point(561, 312)
+        Me.searLabel.Location = New System.Drawing.Point(649, 276)
         Me.searLabel.Name = "searLabel"
         Me.searLabel.Size = New System.Drawing.Size(65, 13)
         Me.searLabel.TabIndex = 21
@@ -165,7 +145,7 @@ Partial Class MainForm
         '
         'searchTxtB
         '
-        Me.searchTxtB.Location = New System.Drawing.Point(623, 309)
+        Me.searchTxtB.Location = New System.Drawing.Point(720, 273)
         Me.searchTxtB.Name = "searchTxtB"
         Me.searchTxtB.ReadOnly = True
         Me.searchTxtB.Size = New System.Drawing.Size(106, 20)
@@ -173,7 +153,7 @@ Partial Class MainForm
         '
         'searchBtn
         '
-        Me.searchBtn.Location = New System.Drawing.Point(304, 307)
+        Me.searchBtn.Location = New System.Drawing.Point(314, 271)
         Me.searchBtn.Name = "searchBtn"
         Me.searchBtn.Size = New System.Drawing.Size(75, 23)
         Me.searchBtn.TabIndex = 0
@@ -182,8 +162,8 @@ Partial Class MainForm
         '
         'statusStrip
         '
-        Me.statusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.loadingLabel})
-        Me.statusStrip.Location = New System.Drawing.Point(0, 348)
+        Me.statusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.loadingLabel, Me.searchProgBar})
+        Me.statusStrip.Location = New System.Drawing.Point(0, 329)
         Me.statusStrip.Name = "statusStrip"
         Me.statusStrip.Size = New System.Drawing.Size(836, 22)
         Me.statusStrip.TabIndex = 24
@@ -196,6 +176,13 @@ Partial Class MainForm
         Me.loadingLabel.Text = "Loading. . .Please wait, this may take a few minutes"
         Me.loadingLabel.Visible = False
         '
+        'searchProgBar
+        '
+        Me.searchProgBar.Name = "searchProgBar"
+        Me.searchProgBar.Size = New System.Drawing.Size(100, 16)
+        Me.searchProgBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
+        Me.searchProgBar.Visible = False
+        '
         'loadBGWorker
         '
         Me.loadBGWorker.WorkerReportsProgress = True
@@ -206,23 +193,25 @@ Partial Class MainForm
         Me.criteriaPanel.AutoScroll = True
         Me.criteriaPanel.Location = New System.Drawing.Point(12, 53)
         Me.criteriaPanel.Name = "criteriaPanel"
-        Me.criteriaPanel.Size = New System.Drawing.Size(814, 238)
+        Me.criteriaPanel.Size = New System.Drawing.Size(814, 216)
         Me.criteriaPanel.TabIndex = 25
+        '
+        'progTimer
+        '
+        Me.progTimer.Interval = 1000
         '
         'MainForm
         '
         Me.AllowDrop = True
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(836, 370)
+        Me.ClientSize = New System.Drawing.Size(836, 351)
         Me.Controls.Add(Me.criteriaPanel)
         Me.Controls.Add(Me.statusStrip)
         Me.Controls.Add(Me.searchTxtB)
         Me.Controls.Add(Me.searLabel)
-        Me.Controls.Add(Me.searchProgLabel)
         Me.Controls.Add(Me.resetBtn)
         Me.Controls.Add(Me.searchBtn)
-        Me.Controls.Add(Me.searchProgBar)
         Me.Controls.Add(Me.datasrcLabel)
         Me.Controls.Add(Me.datasrcTxtB)
         Me.Controls.Add(Me.menuStrip)
@@ -253,8 +242,6 @@ Partial Class MainForm
     Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents importFD As System.Windows.Forms.OpenFileDialog
     Friend WithEvents exportFD As System.Windows.Forms.SaveFileDialog
-    Friend WithEvents searchProgBar As System.Windows.Forms.ProgressBar
-    Friend WithEvents searchProgLabel As System.Windows.Forms.Label
     Friend WithEvents searLabel As System.Windows.Forms.Label
     Friend WithEvents searchTxtB As System.Windows.Forms.TextBox
     Friend WithEvents searchBtn As System.Windows.Forms.Button
@@ -263,5 +250,7 @@ Partial Class MainForm
     Friend WithEvents loadingLabel As System.Windows.Forms.ToolStripStatusLabel
     Friend WithEvents loadBGWorker As System.ComponentModel.BackgroundWorker
     Friend WithEvents criteriaPanel As System.Windows.Forms.Panel
+    Friend WithEvents progTimer As System.Windows.Forms.Timer
+    Friend WithEvents searchProgBar As System.Windows.Forms.ToolStripProgressBar
 
 End Class
