@@ -21,7 +21,7 @@
         '
         'Version.Text = System.String.Format(Version.Text, My.Application.Info.Version.Major, My.Application.Info.Version.Minor, My.Application.Info.Version.Build, My.Application.Info.Version.Revision)
 
-        Version.Text = FileVersionInfo.GetVersionInfo(Application.ExecutablePath).FileVersion
+        Version.Text = "Version " & System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()
 
         'Copyright info
         Copyright.Text = My.Application.Info.Copyright

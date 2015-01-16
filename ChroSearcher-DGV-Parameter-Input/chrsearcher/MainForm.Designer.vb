@@ -47,6 +47,7 @@ Partial Class MainForm
         Me.loadBGWorker = New System.ComponentModel.BackgroundWorker()
         Me.criteriaPanel = New System.Windows.Forms.Panel()
         Me.progTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.cancelBtn = New System.Windows.Forms.Button()
         Me.menuStrip.SuspendLayout()
         Me.statusStrip.SuspendLayout()
         Me.SuspendLayout()
@@ -167,7 +168,6 @@ Partial Class MainForm
         Me.statusStrip.Name = "statusStrip"
         Me.statusStrip.Size = New System.Drawing.Size(836, 22)
         Me.statusStrip.TabIndex = 24
-        Me.statusStrip.UseWaitCursor = True
         '
         'loadingLabel
         '
@@ -200,12 +200,23 @@ Partial Class MainForm
         '
         Me.progTimer.Interval = 1000
         '
+        'cancelBtn
+        '
+        Me.cancelBtn.Location = New System.Drawing.Point(369, 300)
+        Me.cancelBtn.Name = "cancelBtn"
+        Me.cancelBtn.Size = New System.Drawing.Size(75, 23)
+        Me.cancelBtn.TabIndex = 26
+        Me.cancelBtn.Text = "Cancel"
+        Me.cancelBtn.UseVisualStyleBackColor = True
+        Me.cancelBtn.Visible = False
+        '
         'MainForm
         '
         Me.AllowDrop = True
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(836, 351)
+        Me.Controls.Add(Me.cancelBtn)
         Me.Controls.Add(Me.criteriaPanel)
         Me.Controls.Add(Me.statusStrip)
         Me.Controls.Add(Me.searchTxtB)
@@ -252,5 +263,6 @@ Partial Class MainForm
     Friend WithEvents criteriaPanel As System.Windows.Forms.Panel
     Friend WithEvents progTimer As System.Windows.Forms.Timer
     Friend WithEvents searchProgBar As System.Windows.Forms.ToolStripProgressBar
+    Friend WithEvents cancelBtn As System.Windows.Forms.Button
 
 End Class

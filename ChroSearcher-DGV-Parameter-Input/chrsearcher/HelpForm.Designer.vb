@@ -72,7 +72,7 @@ Partial Class HelpForm
         '
         'closeBtn
         '
-        Me.closeBtn.Location = New System.Drawing.Point(353, 309)
+        Me.closeBtn.Location = New System.Drawing.Point(356, 306)
         Me.closeBtn.Name = "closeBtn"
         Me.closeBtn.Size = New System.Drawing.Size(75, 23)
         Me.closeBtn.TabIndex = 4
