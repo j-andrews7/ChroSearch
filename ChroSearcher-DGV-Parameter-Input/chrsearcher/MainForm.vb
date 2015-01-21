@@ -5,8 +5,7 @@ Imports System.Threading
 
 Public Class MainForm
 
-    'Creates instance of HelpForm so multiple can't be created by clicking help multiple times
-    'Create global instances of the datatables and line count of the input file
+    'Declare variables
     Dim helpForm As New HelpForm
     Dim fileSizeKB As Integer
     Dim colCount As Integer
@@ -15,6 +14,14 @@ Public Class MainForm
     Dim lineBytes As Double
     Dim progBarValue As Double
     Dim cancelSearch As Boolean
+    Dim chartResults As Boolean
+    Dim dataCboSelection As Integer
+    Dim labelCboSelection As Integer
+    Dim dataList As New List(Of Double)
+    Dim labelList As New List(Of String)
+    Dim chartType As Integer
+    Dim chartXTitle As String
+    Dim chartYTitle
 
     Dim searchList As New Generic.List(Of SearchCriteria)
 
@@ -23,7 +30,7 @@ Public Class MainForm
         Dim importFD As New OpenFileDialog
 
         importFD.Title = "Open a text file"
-        importFD.Filter = "Text Files(*.txt;*.bed;*.tsv)|*.txt;*bed;*.tsv|All Files (*.*)|*.*"
+        importFD.Filter = "Text Files(*.txt;*.bed;*.tsv)|*.txt;*.bed;*.tsv|All Files (*.*)|*.*"
         Dim result = importFD.ShowDialog()
         If result = DialogResult.Cancel Then 'Only recording path if file is actually opened.
             Me.Cursor = Cursors.Default
@@ -114,9 +121,10 @@ Public Class MainForm
     'Make search criteria's controls
     Private Sub createSearchCriteria(criteriaName As String, xPosition As Integer, yPosition As Integer)
         Dim newSearchCriteria As New SearchCriteria(criteriaName, criteriaPanel, xPosition, yPosition)
-        ' Add to list
+        'Add to list
         searchList.Add(newSearchCriteria)
 
+        'Allows for drawing of the controls
         criteriaPanel.Refresh()
     End Sub
 
@@ -142,7 +150,7 @@ Public Class MainForm
 
     'Shows "About" information from the help menu.
     Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
-        MsgBox("ChroSearch Developed by the Payton Lab", , "About ChroSearch")
+        MsgBox("ChroSearch: Developed by the Payton Lab", , "About ChroSearch")
     End Sub
 
 
@@ -202,11 +210,10 @@ Public Class MainForm
     End Sub
 
     'Searches the loaded file
-    Private Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
+    Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim searchThreads As New Generic.List(Of System.Threading.Thread)
         Dim batchOne As New Generic.List(Of String)
         Dim batchTwo As New Generic.List(Of String)
-        Dim writeThread As New System.Threading.Thread(Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads))
 
         'Prompts user to enter title of file to be created
         exportFD.Title = "Save as. . ."
@@ -222,9 +229,26 @@ Public Class MainForm
             searchHits = 0 'Reset search results
             progBarValue = 0
             searchProgBar.Visible = True
+            searchResLabel.Visible = False
             progTimer.Start()
 
-            'Locks each searchbox so user can't change parameters during search
+            If dataList.Count > 0 Then
+                dataList.Clear()
+            End If
+
+            If labelList.Count > 0 Then
+                labelList.Clear()
+            End If
+
+            If chartChkBox.Checked Then
+                chartResults = True
+                dataCboSelection = dataCboBox.SelectedIndex
+                labelCboSelection = labelCboBox.SelectedIndex
+            Else
+                chartResults = False
+            End If
+
+            'Locks each searchbox/buttons so user can't change parameters during search
             For Each ctrl As Control In criteriaPanel.Controls
                 ctrl.Enabled = False
             Next
@@ -251,14 +275,29 @@ Public Class MainForm
                 searchThreads(i).Start()
             Next
 
-            writeThread.Start()
+            Await Task.Run((Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads)))
+
+            Try
+                If chartResults Then
+                    If chartType = 0 Then
+                        chartXTitle = (labelCboBox.SelectedItem.ToString())
+                        chartYTitle = (dataCboBox.SelectedItem.ToString())
+                    Else
+                        chartXTitle = (labelCboBox.SelectedItem.ToString())
+                        chartYTitle = (dataCboBox.SelectedItem.ToString())
+                    End If
+                    createChart(dataList, labelList, chartType, chartXTitle, chartYTitle)
+                End If
+            Catch err As Exception
+                MsgBox(err.ToString(), , "Charting Error")
+            End Try
 
         End If
 
     End Sub
 
     'Writes the contents of the textbatches whenever they have
-    ' >25000 results in it, then clears the textbatches and resumes the search threads
+    '>25000 results in them, then clears the textbatches and resumes the search threads.
     Private Sub writePeriodically(fileName As String, batchOne As List(Of String), batchTwo As List(Of String), searchThreads As List(Of System.Threading.Thread))
         Dim writer As New IO.StreamWriter(fileName, True)
         Dim searchFinished = False
@@ -293,6 +332,8 @@ Public Class MainForm
                     End Try
                 Next
 
+                chartResults = False
+
                 For Each result As String In batchOne
                     writer.WriteLine(result)
                     searchHits += 1
@@ -316,14 +357,43 @@ Public Class MainForm
         Loop While searchFinished = False
 
         'Better to just handle potential remaining results after the loop has ended
-        For Each result As String In batchOne
-            writer.WriteLine(result)
-            searchHits += 1
-        Next
-        For Each result As String In batchTwo
-            writer.WriteLine(result)
-            searchHits += 1
-        Next
+        If chartResults Then
+            Dim temp() As String
+            If barRadBtn.Checked Then
+                chartType = 0
+            ElseIf pointRadBtn.Checked Then
+                chartType = 1
+            End If
+            Try
+                For Each result As String In batchOne
+                    writer.WriteLine(result)
+                    searchHits += 1
+                    temp = Split(result, vbTab)
+                    dataList.Add(CDec(temp(dataCboSelection)))
+                    labelList.Add(temp(labelCboSelection))
+                Next
+                For Each result As String In batchTwo
+                    writer.WriteLine(result)
+                    searchHits += 1
+                    temp = Split(result, vbTab)
+                    dataList.Add(CDec(temp(dataCboSelection)))
+                    labelList.Add(temp(labelCboSelection))
+                Next
+
+            Catch e As Exception
+                MsgBox(e.ToString(), , "Charting Error")
+                chartResults = False
+            End Try
+        Else
+            For Each result As String In batchOne
+                writer.WriteLine(result)
+                searchHits += 1
+            Next
+            For Each result As String In batchTwo
+                writer.WriteLine(result)
+                searchHits += 1
+            Next
+        End If
         batchOne.Clear()
         batchTwo.Clear()
 
@@ -334,84 +404,14 @@ Public Class MainForm
         MsgBox("Saved to: " + fileName + ". " + searchHits.ToString() + " search results found in " + _
                searchWatch.Elapsed.ToString() + ".")
 
-
     End Sub
 
-    'These three functions allow setting text of searchTxtB from outside UI thread
-    'and allow controls in the criteriaPanel to be re-enabled after search finishes
-    Delegate Sub setTextCallback([text] As String, [bool] As Boolean, [number] As Integer, [bool2] As Boolean, [num2] As Integer)
-
-    Private Sub SetText(ByVal [text] As String, ByVal [bool] As Boolean, ByVal [number] As Integer, ByVal [bool2] As Boolean, ByVal [num2] As Integer)
-
-        ' InvokeRequired required compares the thread ID of the 
-        ' calling thread to the thread ID of the creating thread. 
-        ' If these threads are different, it returns true. 
-        If Me.searchTxtB.InvokeRequired Then
-            Dim d As New setTextCallback(AddressOf SetText)
-            Me.Invoke(d, New Object() {[text], [bool], [number], [bool2], [num2]})
-        Else
-            Me.searchTxtB.Text = [text]
-            Me.searchProgBar.Value = [number]
-        End If
-
-        'Re-enables each of the filter groupboxes once the search is complete
-        If Me.criteriaPanel.InvokeRequired Then
-            Dim f As New setTextCallback(AddressOf SetText)
-            Me.Invoke(f, New Object() {[text], [bool], [number], [bool2], [num2]})
-        Else
-            For Each ctrl As Control In Me.criteriaPanel.Controls
-                ctrl.Enabled = [bool]
-            Next
-
-            'Re-enables search and reset buttons once the search is complete
-            Me.resetBtn.Enabled = [bool]
-            Me.searchBtn.Enabled = [bool]
-            Me.cancelBtn.Visible = [bool2]
-        End If
+    Private Sub createChart(dataList As List(Of Double), labelList As List(Of String), chartType As Integer, chartXTitle As String, _
+                            chartYTitle As String)
+        Dim chart As ChartForm
+        chart = New ChartForm(dataList, labelList, chartType, chartXTitle, chartYTitle)
+        chart.Show()
     End Sub
-
-    Private Sub threadProcSafe()
-        Me.SetText(searchHits.ToString(), True, searchProgBar.Maximum, False, 0)
-    End Sub
-
-    'These three functions allow setting text of searchTxtB from outside UI thread
-    'and allow controls in the criteriaPanel to be re-enabled after search finishes
-    Delegate Sub setReset([text] As String, [bool] As Boolean, [number] As Integer, [bool2] As Boolean)
-
-    Private Sub Reset(ByVal [text] As String, ByVal [bool] As Boolean, ByVal [number] As Integer, ByVal [bool2] As Boolean)
-
-        ' InvokeRequired required compares the thread ID of the 
-        ' calling thread to the thread ID of the creating thread. 
-        ' If these threads are different, it returns true. 
-        If Me.searchTxtB.InvokeRequired Then
-            Dim d As New setReset(AddressOf Reset)
-            Me.Invoke(d, New Object() {[text], [bool], [number], [bool2]})
-        Else
-            Me.loadingLabel.Text = [text]
-            Me.searchProgBar.Value = [number]
-        End If
-
-        'Re-enables each of the filter groupboxes once the search is complete
-        If Me.criteriaPanel.InvokeRequired Then
-            Dim f As New setReset(AddressOf Reset)
-            Me.Invoke(f, New Object() {[text], [bool], [number], [bool2]})
-        Else
-            For Each ctrl As Control In Me.criteriaPanel.Controls
-                ctrl.Enabled = [bool]
-            Next
-
-            'Re-enables search and reset buttons once the search is complete
-            Me.resetBtn.Enabled = [bool]
-            Me.searchBtn.Enabled = [bool]
-            Me.cancelBtn.Visible = [bool2]
-            Me.searchProgBar.Visible = [bool2]
-        End If
-    End Sub
-
-    Private Sub threadCancelSafe()
-        Me.Reset("Search canceled", True, 0, False)
-    End Sub
-
 
     Private Sub searchFile(textBatch As List(Of String), startPos As Integer, skipSize As Integer)
         Dim reader As New IO.StreamReader(filepath)
@@ -575,6 +575,25 @@ Public Class MainForm
         searchProgBar.Maximum = fileSizeKB
 
         createSearchOptions(filepath)
+        dataCboBox.Items.Clear()
+        labelCboBox.Items.Clear()
+
+        'Populates the charting options comboboxes and makes the charting options controls visible.
+        For Each criteria As SearchCriteria In searchList
+            dataCboBox.Items.Add(criteria.name)
+            labelCboBox.Items.Add(criteria.name)
+        Next
+
+        'Sets comboboxes to a value so they aren't blank by default
+        If dataCboBox.Items.Count > 0 Then
+            dataCboBox.SelectedIndex = 0
+        End If
+
+        If labelCboBox.Items.Count > 0 Then
+            labelCboBox.SelectedIndex = 0
+        End If
+
+        chartGrpBox.Visible = True
     End Sub
 
     'Updates progress bar every second
@@ -592,6 +611,106 @@ Public Class MainForm
     'Cancels search when clicked.
     Private Sub cancelBtn_Click(sender As Object, e As EventArgs) Handles cancelBtn.Click
         cancelSearch = True
+    End Sub
+
+    'Controls visibility of chart controls when the chart results checkbox is checked/unchecked
+    Private Sub chartChkBox_CheckedChanged(sender As Object, e As EventArgs) Handles chartChkBox.CheckedChanged
+        If chartChkBox.Checked Then
+            barRadBtn.Visible = True
+            pointRadBtn.Visible = True
+            typeLabel.Visible = True
+            dataColLabel.Visible = True
+            labelColLabel.Visible = True
+            dataCboBox.Visible = True
+            labelCboBox.Visible = True
+        ElseIf chartChkBox.Checked = False Then
+            barRadBtn.Visible = False
+            pointRadBtn.Visible = False
+            typeLabel.Visible = False
+            dataColLabel.Visible = False
+            labelColLabel.Visible = False
+            dataCboBox.Visible = False
+            labelCboBox.Visible = False
+        End If
+    End Sub
+
+
+    'These three functions allow setting text of searchTxtB from outside UI thread
+    'and allow controls in the criteriaPanel to be re-enabled after search finishes
+    Delegate Sub setTextCallback([text] As String, [bool] As Boolean, [number] As Integer, [bool2] As Boolean, [num2] As Integer)
+
+    Private Sub SetText(ByVal [text] As String, ByVal [bool] As Boolean, ByVal [number] As Integer, ByVal [bool2] As Boolean, ByVal [num2] As Integer)
+
+        ' InvokeRequired required compares the thread ID of the 
+        ' calling thread to the thread ID of the creating thread. 
+        ' If these threads are different, it returns true. 
+
+        'Re-enables each of the filter groupboxes once the search is complete
+        If Me.criteriaPanel.InvokeRequired Then
+            Dim f As New setTextCallback(AddressOf SetText)
+            Me.Invoke(f, New Object() {[text], [bool], [number], [bool2], [num2]})
+        Else
+            For Each ctrl As Control In Me.criteriaPanel.Controls
+                ctrl.Enabled = [bool]
+                Me.searchResLabel.Text = "Search results: " + [text]
+                Me.searchResLabel.Visible = [bool]
+                Me.searchProgBar.Value = [number]
+            Next
+
+            'Re-enables search and reset buttons once the search is complete
+            Me.resetBtn.Enabled = [bool]
+            Me.searchBtn.Enabled = [bool]
+            Me.cancelBtn.Visible = [bool2]
+        End If
+    End Sub
+
+    Private Sub threadProcSafe()
+        Me.SetText(searchHits.ToString(), True, searchProgBar.Maximum, False, 0)
+    End Sub
+
+    'These three functions allow setting text of searchTxtB from outside UI thread
+    'and allow controls in the criteriaPanel to be re-enabled after search finishes
+    Delegate Sub setReset([text] As String, [bool] As Boolean, [number] As Integer, [bool2] As Boolean)
+
+    Private Sub Reset(ByVal [text] As String, ByVal [bool] As Boolean, ByVal [number] As Integer, ByVal [bool2] As Boolean)
+
+        ' InvokeRequired required compares the thread ID of the 
+        ' calling thread to the thread ID of the creating thread. 
+        ' If these threads are different, it returns true. 
+
+        'Re-enables each of the filter groupboxes once the search is complete
+        If Me.criteriaPanel.InvokeRequired Then
+            Dim f As New setReset(AddressOf Reset)
+            Me.Invoke(f, New Object() {[text], [bool], [number], [bool2]})
+        Else
+            For Each ctrl As Control In Me.criteriaPanel.Controls
+                ctrl.Enabled = [bool]
+                Me.loadingLabel.Text = [text]
+                Me.searchProgBar.Value = [number]
+            Next
+
+            'Re-enables search and reset buttons once the search is complete
+            Me.resetBtn.Enabled = [bool]
+            Me.searchBtn.Enabled = [bool]
+            Me.cancelBtn.Visible = [bool2]
+            Me.searchProgBar.Visible = [bool2]
+        End If
+    End Sub
+
+    Private Sub threadCancelSafe()
+        Me.Reset("Search canceled", True, 0, False)
+    End Sub
+
+    Private Sub barRadBtn_CheckedChanged(sender As Object, e As EventArgs) Handles barRadBtn.CheckedChanged
+        If barRadBtn.Checked Then
+            chartType = 0
+        End If
+    End Sub
+
+    Private Sub pointRadBtn_CheckedChanged(sender As Object, e As EventArgs) Handles pointRadBtn.CheckedChanged
+        If pointRadBtn.Checked Then
+            chartType = 1
+        End If
     End Sub
 End Class
 

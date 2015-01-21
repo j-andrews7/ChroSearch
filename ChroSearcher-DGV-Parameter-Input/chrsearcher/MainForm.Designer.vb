@@ -38,18 +38,30 @@ Partial Class MainForm
         Me.datasrcLabel = New System.Windows.Forms.Label()
         Me.importFD = New System.Windows.Forms.OpenFileDialog()
         Me.exportFD = New System.Windows.Forms.SaveFileDialog()
-        Me.searLabel = New System.Windows.Forms.Label()
-        Me.searchTxtB = New System.Windows.Forms.TextBox()
         Me.searchBtn = New System.Windows.Forms.Button()
         Me.statusStrip = New System.Windows.Forms.StatusStrip()
         Me.loadingLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.searchProgBar = New System.Windows.Forms.ToolStripProgressBar()
+        Me.searchResLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.loadBGWorker = New System.ComponentModel.BackgroundWorker()
         Me.criteriaPanel = New System.Windows.Forms.Panel()
         Me.progTimer = New System.Windows.Forms.Timer(Me.components)
         Me.cancelBtn = New System.Windows.Forms.Button()
+        Me.previewDGV = New System.Windows.Forms.DataGridView()
+        Me.previewLabel = New System.Windows.Forms.Label()
+        Me.chartGrpBox = New System.Windows.Forms.GroupBox()
+        Me.pointRadBtn = New System.Windows.Forms.RadioButton()
+        Me.barRadBtn = New System.Windows.Forms.RadioButton()
+        Me.typeLabel = New System.Windows.Forms.Label()
+        Me.dataColLabel = New System.Windows.Forms.Label()
+        Me.labelColLabel = New System.Windows.Forms.Label()
+        Me.labelCboBox = New System.Windows.Forms.ComboBox()
+        Me.dataCboBox = New System.Windows.Forms.ComboBox()
+        Me.chartChkBox = New System.Windows.Forms.CheckBox()
         Me.menuStrip.SuspendLayout()
         Me.statusStrip.SuspendLayout()
+        CType(Me.previewDGV, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.chartGrpBox.SuspendLayout()
         Me.SuspendLayout()
         '
         'menuStrip
@@ -110,7 +122,7 @@ Partial Class MainForm
         '
         'resetBtn
         '
-        Me.resetBtn.Location = New System.Drawing.Point(429, 271)
+        Me.resetBtn.Location = New System.Drawing.Point(330, 439)
         Me.resetBtn.Name = "resetBtn"
         Me.resetBtn.Size = New System.Drawing.Size(100, 23)
         Me.resetBtn.TabIndex = 1
@@ -135,26 +147,9 @@ Partial Class MainForm
         Me.datasrcLabel.TabIndex = 11
         Me.datasrcLabel.Text = "Data Source:"
         '
-        'searLabel
-        '
-        Me.searLabel.AutoSize = True
-        Me.searLabel.Location = New System.Drawing.Point(649, 276)
-        Me.searLabel.Name = "searLabel"
-        Me.searLabel.Size = New System.Drawing.Size(65, 13)
-        Me.searLabel.TabIndex = 21
-        Me.searLabel.Text = "Search Hits:"
-        '
-        'searchTxtB
-        '
-        Me.searchTxtB.Location = New System.Drawing.Point(720, 273)
-        Me.searchTxtB.Name = "searchTxtB"
-        Me.searchTxtB.ReadOnly = True
-        Me.searchTxtB.Size = New System.Drawing.Size(106, 20)
-        Me.searchTxtB.TabIndex = 22
-        '
         'searchBtn
         '
-        Me.searchBtn.Location = New System.Drawing.Point(314, 271)
+        Me.searchBtn.Location = New System.Drawing.Point(76, 439)
         Me.searchBtn.Name = "searchBtn"
         Me.searchBtn.Size = New System.Drawing.Size(75, 23)
         Me.searchBtn.TabIndex = 0
@@ -163,8 +158,8 @@ Partial Class MainForm
         '
         'statusStrip
         '
-        Me.statusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.loadingLabel, Me.searchProgBar})
-        Me.statusStrip.Location = New System.Drawing.Point(0, 329)
+        Me.statusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.loadingLabel, Me.searchProgBar, Me.searchResLabel})
+        Me.statusStrip.Location = New System.Drawing.Point(0, 474)
         Me.statusStrip.Name = "statusStrip"
         Me.statusStrip.Size = New System.Drawing.Size(836, 22)
         Me.statusStrip.TabIndex = 24
@@ -183,6 +178,13 @@ Partial Class MainForm
         Me.searchProgBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         Me.searchProgBar.Visible = False
         '
+        'searchResLabel
+        '
+        Me.searchResLabel.Margin = New System.Windows.Forms.Padding(435, 3, 0, 2)
+        Me.searchResLabel.Name = "searchResLabel"
+        Me.searchResLabel.Size = New System.Drawing.Size(0, 17)
+        Me.searchResLabel.Visible = False
+        '
         'loadBGWorker
         '
         Me.loadBGWorker.WorkerReportsProgress = True
@@ -193,7 +195,7 @@ Partial Class MainForm
         Me.criteriaPanel.AutoScroll = True
         Me.criteriaPanel.Location = New System.Drawing.Point(12, 53)
         Me.criteriaPanel.Name = "criteriaPanel"
-        Me.criteriaPanel.Size = New System.Drawing.Size(814, 216)
+        Me.criteriaPanel.Size = New System.Drawing.Size(814, 236)
         Me.criteriaPanel.TabIndex = 25
         '
         'progTimer
@@ -202,7 +204,7 @@ Partial Class MainForm
         '
         'cancelBtn
         '
-        Me.cancelBtn.Location = New System.Drawing.Point(369, 300)
+        Me.cancelBtn.Location = New System.Drawing.Point(203, 439)
         Me.cancelBtn.Name = "cancelBtn"
         Me.cancelBtn.Size = New System.Drawing.Size(75, 23)
         Me.cancelBtn.TabIndex = 26
@@ -210,17 +212,135 @@ Partial Class MainForm
         Me.cancelBtn.UseVisualStyleBackColor = True
         Me.cancelBtn.Visible = False
         '
+        'previewDGV
+        '
+        Me.previewDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.previewDGV.Location = New System.Drawing.Point(12, 316)
+        Me.previewDGV.Name = "previewDGV"
+        Me.previewDGV.Size = New System.Drawing.Size(492, 111)
+        Me.previewDGV.TabIndex = 27
+        '
+        'previewLabel
+        '
+        Me.previewLabel.AutoSize = True
+        Me.previewLabel.Location = New System.Drawing.Point(9, 300)
+        Me.previewLabel.Name = "previewLabel"
+        Me.previewLabel.Size = New System.Drawing.Size(91, 13)
+        Me.previewLabel.TabIndex = 28
+        Me.previewLabel.Text = "Input File Preview"
+        '
+        'chartGrpBox
+        '
+        Me.chartGrpBox.Controls.Add(Me.pointRadBtn)
+        Me.chartGrpBox.Controls.Add(Me.barRadBtn)
+        Me.chartGrpBox.Controls.Add(Me.typeLabel)
+        Me.chartGrpBox.Controls.Add(Me.dataColLabel)
+        Me.chartGrpBox.Controls.Add(Me.labelColLabel)
+        Me.chartGrpBox.Controls.Add(Me.labelCboBox)
+        Me.chartGrpBox.Controls.Add(Me.dataCboBox)
+        Me.chartGrpBox.Controls.Add(Me.chartChkBox)
+        Me.chartGrpBox.Location = New System.Drawing.Point(515, 305)
+        Me.chartGrpBox.Name = "chartGrpBox"
+        Me.chartGrpBox.Size = New System.Drawing.Size(311, 122)
+        Me.chartGrpBox.TabIndex = 29
+        Me.chartGrpBox.TabStop = False
+        Me.chartGrpBox.Text = "Charting Options"
+        Me.chartGrpBox.Visible = False
+        '
+        'pointRadBtn
+        '
+        Me.pointRadBtn.AutoSize = True
+        Me.pointRadBtn.Location = New System.Drawing.Point(6, 92)
+        Me.pointRadBtn.Name = "pointRadBtn"
+        Me.pointRadBtn.Size = New System.Drawing.Size(77, 17)
+        Me.pointRadBtn.TabIndex = 7
+        Me.pointRadBtn.TabStop = True
+        Me.pointRadBtn.Text = "Point Chart"
+        Me.pointRadBtn.UseVisualStyleBackColor = True
+        Me.pointRadBtn.Visible = False
+        '
+        'barRadBtn
+        '
+        Me.barRadBtn.AutoSize = True
+        Me.barRadBtn.Location = New System.Drawing.Point(6, 69)
+        Me.barRadBtn.Name = "barRadBtn"
+        Me.barRadBtn.Size = New System.Drawing.Size(69, 17)
+        Me.barRadBtn.TabIndex = 6
+        Me.barRadBtn.TabStop = True
+        Me.barRadBtn.Text = "Bar Chart"
+        Me.barRadBtn.UseVisualStyleBackColor = True
+        Me.barRadBtn.Visible = False
+        '
+        'typeLabel
+        '
+        Me.typeLabel.AutoSize = True
+        Me.typeLabel.Location = New System.Drawing.Point(3, 53)
+        Me.typeLabel.Name = "typeLabel"
+        Me.typeLabel.Size = New System.Drawing.Size(59, 13)
+        Me.typeLabel.TabIndex = 5
+        Me.typeLabel.Text = "Chart Type"
+        Me.typeLabel.Visible = False
+        '
+        'dataColLabel
+        '
+        Me.dataColLabel.AutoSize = True
+        Me.dataColLabel.Location = New System.Drawing.Point(155, 15)
+        Me.dataColLabel.Name = "dataColLabel"
+        Me.dataColLabel.Size = New System.Drawing.Size(106, 13)
+        Me.dataColLabel.TabIndex = 4
+        Me.dataColLabel.Text = "Data Column (Y-Axis)"
+        Me.dataColLabel.Visible = False
+        '
+        'labelColLabel
+        '
+        Me.labelColLabel.AutoSize = True
+        Me.labelColLabel.Location = New System.Drawing.Point(155, 69)
+        Me.labelColLabel.Name = "labelColLabel"
+        Me.labelColLabel.Size = New System.Drawing.Size(109, 13)
+        Me.labelColLabel.TabIndex = 3
+        Me.labelColLabel.Text = "Label Column (X-Axis)"
+        Me.labelColLabel.Visible = False
+        '
+        'labelCboBox
+        '
+        Me.labelCboBox.FormattingEnabled = True
+        Me.labelCboBox.Location = New System.Drawing.Point(158, 85)
+        Me.labelCboBox.Name = "labelCboBox"
+        Me.labelCboBox.Size = New System.Drawing.Size(147, 21)
+        Me.labelCboBox.TabIndex = 2
+        Me.labelCboBox.Visible = False
+        '
+        'dataCboBox
+        '
+        Me.dataCboBox.FormattingEnabled = True
+        Me.dataCboBox.Location = New System.Drawing.Point(158, 31)
+        Me.dataCboBox.Name = "dataCboBox"
+        Me.dataCboBox.Size = New System.Drawing.Size(147, 21)
+        Me.dataCboBox.TabIndex = 1
+        Me.dataCboBox.Visible = False
+        '
+        'chartChkBox
+        '
+        Me.chartChkBox.AutoSize = True
+        Me.chartChkBox.Location = New System.Drawing.Point(6, 19)
+        Me.chartChkBox.Name = "chartChkBox"
+        Me.chartChkBox.Size = New System.Drawing.Size(89, 17)
+        Me.chartChkBox.TabIndex = 0
+        Me.chartChkBox.Text = "Chart Results"
+        Me.chartChkBox.UseVisualStyleBackColor = True
+        '
         'MainForm
         '
         Me.AllowDrop = True
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(836, 351)
+        Me.ClientSize = New System.Drawing.Size(836, 496)
+        Me.Controls.Add(Me.chartGrpBox)
+        Me.Controls.Add(Me.previewLabel)
+        Me.Controls.Add(Me.previewDGV)
         Me.Controls.Add(Me.cancelBtn)
         Me.Controls.Add(Me.criteriaPanel)
         Me.Controls.Add(Me.statusStrip)
-        Me.Controls.Add(Me.searchTxtB)
-        Me.Controls.Add(Me.searLabel)
         Me.Controls.Add(Me.resetBtn)
         Me.Controls.Add(Me.searchBtn)
         Me.Controls.Add(Me.datasrcLabel)
@@ -236,6 +356,9 @@ Partial Class MainForm
         Me.menuStrip.PerformLayout()
         Me.statusStrip.ResumeLayout(False)
         Me.statusStrip.PerformLayout()
+        CType(Me.previewDGV, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.chartGrpBox.ResumeLayout(False)
+        Me.chartGrpBox.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -253,8 +376,6 @@ Partial Class MainForm
     Friend WithEvents HelpToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents importFD As System.Windows.Forms.OpenFileDialog
     Friend WithEvents exportFD As System.Windows.Forms.SaveFileDialog
-    Friend WithEvents searLabel As System.Windows.Forms.Label
-    Friend WithEvents searchTxtB As System.Windows.Forms.TextBox
     Friend WithEvents searchBtn As System.Windows.Forms.Button
     Friend WithEvents resetBtn As System.Windows.Forms.Button
     Friend WithEvents statusStrip As System.Windows.Forms.StatusStrip
@@ -264,5 +385,17 @@ Partial Class MainForm
     Friend WithEvents progTimer As System.Windows.Forms.Timer
     Friend WithEvents searchProgBar As System.Windows.Forms.ToolStripProgressBar
     Friend WithEvents cancelBtn As System.Windows.Forms.Button
+    Friend WithEvents previewDGV As System.Windows.Forms.DataGridView
+    Friend WithEvents previewLabel As System.Windows.Forms.Label
+    Friend WithEvents searchResLabel As System.Windows.Forms.ToolStripStatusLabel
+    Friend WithEvents chartGrpBox As System.Windows.Forms.GroupBox
+    Friend WithEvents pointRadBtn As System.Windows.Forms.RadioButton
+    Friend WithEvents barRadBtn As System.Windows.Forms.RadioButton
+    Friend WithEvents typeLabel As System.Windows.Forms.Label
+    Friend WithEvents dataColLabel As System.Windows.Forms.Label
+    Friend WithEvents labelColLabel As System.Windows.Forms.Label
+    Friend WithEvents labelCboBox As System.Windows.Forms.ComboBox
+    Friend WithEvents dataCboBox As System.Windows.Forms.ComboBox
+    Friend WithEvents chartChkBox As System.Windows.Forms.CheckBox
 
 End Class
