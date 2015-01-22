@@ -214,9 +214,13 @@ Partial Class MainForm
         '
         'previewDGV
         '
+        Me.previewDGV.AllowUserToAddRows = False
+        Me.previewDGV.AllowUserToDeleteRows = False
         Me.previewDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.previewDGV.ColumnHeadersVisible = False
         Me.previewDGV.Location = New System.Drawing.Point(12, 316)
         Me.previewDGV.Name = "previewDGV"
+        Me.previewDGV.RowHeadersVisible = False
         Me.previewDGV.Size = New System.Drawing.Size(492, 111)
         Me.previewDGV.TabIndex = 27
         '

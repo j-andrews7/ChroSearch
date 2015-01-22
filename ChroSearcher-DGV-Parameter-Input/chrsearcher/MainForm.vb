@@ -21,7 +21,7 @@ Public Class MainForm
     Dim labelList As New List(Of String)
     Dim chartType As Integer
     Dim chartXTitle As String
-    Dim chartYTitle
+    Dim chartYTitle As String
 
     Dim searchList As New Generic.List(Of SearchCriteria)
 
@@ -51,6 +51,7 @@ Public Class MainForm
         loadingLabel.Visible = True
         datasrcTxtB.Text = filepath
         loadBGWorker.RunWorkerAsync(filepath)
+        loadPreviewDGV(filepath)
 
     End Sub
 
@@ -68,13 +69,43 @@ Public Class MainForm
 
         'If filepath isn't blank, then loads the selected file using the loadBGWorker.
         If filepath <> "" Then
+            Dim reader As New IO.StreamReader(filepath)
+            Dim line As New List(Of String)
             Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
             loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
-            loadingLabel.Text = "Loading...Please wait, this may take a few minutes."
+            loadingLabel.Text = "Loading...Please wait, this may take a moment."
             datasrcTxtB.Text = filepath
+
             loadBGWorker.RunWorkerAsync(filepath)
+
+            loadPreviewDGV(filepath)
+
         End If
 
+
+    End Sub
+
+    'Loads the input file into the preview datagridview
+    Private Sub loadPreviewDGV(filePath As String)
+        Dim reader As New IO.StreamReader(filePath)
+        Dim line As New List(Of String)
+
+        For i As Integer = 0 To previewDGV.Rows.Count - 1
+            previewDGV.Rows.RemoveAt(0)
+        Next
+
+        'Add first 3 lines of file to list so that they may be added to the preview datagridview
+        For i As Integer = 0 To 3
+            line.Add(reader.ReadLine())
+        Next
+
+        'Adds columns to previewDGV
+        previewDGV.ColumnCount = Split(line(0), vbTab).Length
+
+        'Adds rows to previewDGV
+        For Each item As String In line
+            previewDGV.Rows.Add(Split(item, vbTab))
+        Next
 
     End Sub
 
@@ -226,6 +257,7 @@ Public Class MainForm
 
             Dim writer As New IO.StreamWriter(exportFD.FileName, False) 'False (overwrite now)
             Dim reader As New IO.StreamReader(filepath)
+
             searchHits = 0 'Reset search results
             progBarValue = 0
             searchProgBar.Visible = True
@@ -258,14 +290,14 @@ Public Class MainForm
             Me.cancelBtn.Visible = True
             loadingLabel.Visible = True
 
-            'write columns into export file
+            'Write columns into export file
             writer.WriteLine(reader.ReadLine())
 
             'Close out reader
             reader.Close()
             writer.Close()
 
-            'multithreading nonsense
+            'Starts two search threads
             searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchOne, 0, 1)))
             searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchTwo, 1, 1)))
 
@@ -275,8 +307,10 @@ Public Class MainForm
                 searchThreads(i).Start()
             Next
 
+            'Waits for writing to finish so that charting won't be done till after all results are found.
             Await Task.Run((Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads)))
 
+            'If user selected charting, set the chart type and title based on the columns they selected.
             Try
                 If chartResults Then
                     If chartType = 0 Then
@@ -359,11 +393,15 @@ Public Class MainForm
         'Better to just handle potential remaining results after the loop has ended
         If chartResults Then
             Dim temp() As String
+
+            'Checks and sets chart type
             If barRadBtn.Checked Then
                 chartType = 0
             ElseIf pointRadBtn.Checked Then
                 chartType = 1
             End If
+
+            'Writes the results to the export file, increases the searchHits variable and adds the data to the lists for the charts.
             Try
                 For Each result As String In batchOne
                     writer.WriteLine(result)
@@ -385,6 +423,7 @@ Public Class MainForm
                 chartResults = False
             End Try
         Else
+            'If not charting, just write the results to file and increase the searchHits variable
             For Each result As String In batchOne
                 writer.WriteLine(result)
                 searchHits += 1
@@ -393,7 +432,10 @@ Public Class MainForm
                 writer.WriteLine(result)
                 searchHits += 1
             Next
+
         End If
+
+        'Clears the text batches after writing is complete
         batchOne.Clear()
         batchTwo.Clear()
 
@@ -406,6 +448,7 @@ Public Class MainForm
 
     End Sub
 
+    'Creates the chart form and displays the appropriate data when called
     Private Sub createChart(dataList As List(Of Double), labelList As List(Of String), chartType As Integer, chartXTitle As String, _
                             chartYTitle As String)
         Dim chart As ChartForm
@@ -593,6 +636,7 @@ Public Class MainForm
             labelCboBox.SelectedIndex = 0
         End If
 
+        'Makes the charting options box visible.
         chartGrpBox.Visible = True
     End Sub
 
