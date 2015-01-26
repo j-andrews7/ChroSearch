@@ -22,6 +22,7 @@ Public Class MainForm
     Dim chartType As Integer
     Dim chartXTitle As String
     Dim chartYTitle As String
+    Dim cts As New CancellationTokenSource
 
     Dim searchList As New Generic.List(Of SearchCriteria)
 
@@ -245,6 +246,7 @@ Public Class MainForm
         Dim searchThreads As New Generic.List(Of System.Threading.Thread)
         Dim batchOne As New Generic.List(Of String)
         Dim batchTwo As New Generic.List(Of String)
+        cts = New CancellationTokenSource()
 
         'Prompts user to enter title of file to be created
         exportFD.Title = "Save as. . ."
@@ -285,6 +287,10 @@ Public Class MainForm
                 ctrl.Enabled = False
             Next
 
+            For Each contr As Control In chartGrpBox.Controls
+                contr.Enabled = False
+            Next
+
             Me.resetBtn.Enabled = False
             Me.searchBtn.Enabled = False
             Me.cancelBtn.Visible = True
@@ -308,7 +314,14 @@ Public Class MainForm
             Next
 
             'Waits for writing to finish so that charting won't be done till after all results are found.
-            Await Task.Run((Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads)))
+            'Also handles if the cancel button is clicked
+            Try
+                Await Task.Run(Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads, cts.Token), cts.Token)
+            Catch ex As OperationCanceledException
+                loadingLabel.Text = "Search canceled."
+            Catch ex As Exception
+                MsgBox(ex.ToString, MsgBoxStyle.OkOnly, "Error!")
+            End Try
 
             'If user selected charting, set the chart type and title based on the columns they selected.
             Try
@@ -332,7 +345,8 @@ Public Class MainForm
 
     'Writes the contents of the textbatches whenever they have
     '>25000 results in them, then clears the textbatches and resumes the search threads.
-    Private Sub writePeriodically(fileName As String, batchOne As List(Of String), batchTwo As List(Of String), searchThreads As List(Of System.Threading.Thread))
+    Private Sub writePeriodically(fileName As String, batchOne As List(Of String), batchTwo As List(Of String), _
+                                  searchThreads As List(Of System.Threading.Thread), ct As CancellationToken)
         Dim writer As New IO.StreamWriter(fileName, True)
         Dim searchFinished = False
         Dim searchWatch As Stopwatch = Stopwatch.StartNew()
@@ -341,12 +355,15 @@ Public Class MainForm
         Do
             'If search is canceled, clear the textbatches and safely reset UI
             If cancelSearch Then
-                batchOne.Clear()
-                batchTwo.Clear()
-                threadCancelSafe()
-                progTimer.Stop()
-                cancelSearch = False
-                Thread.CurrentThread.Abort()
+                Try
+                    batchOne.Clear()
+                    batchTwo.Clear()
+                    threadCancelSafe()
+                    progTimer.Stop()
+                    cancelSearch = False
+                Catch e As Exception
+                    Console.Write(e.InnerException.ToString())
+                End Try
             End If
 
             searchFinished = True
@@ -439,6 +456,7 @@ Public Class MainForm
         batchOne.Clear()
         batchTwo.Clear()
 
+        cts = Nothing
         searchWatch.Stop()
         progTimer.Stop()
         writer.Close()
@@ -539,21 +557,20 @@ Public Class MainForm
                             'If the comparison failed, then this chromosome is not valid. 
                             'Break out of loop and return false.
                             'Iterates through each string entered by user.
-                            Dim tempValidity As Boolean = False
+                            validChromosome = False
                             For i As Integer = 0 To currentSearchCriteria.stringSearch.Length - 1
 
-                                If String.Equals(readRow(token), currentSearchCriteria.stringSearch(i).Trim(), StringComparison.OrdinalIgnoreCase) Then
-
-                                    tempValidity = True
+                                If sameString(readRow(token), currentSearchCriteria.stringSearch(i)) = True Then
+                                    validChromosome = True
                                     Exit For
                                 End If
                             Next
 
-                            If tempValidity = False Then
-                                validChromosome = False
+                            'If after comparing all the strings in the search parameter, validChromosome is still false
+                            'then don't check later search parameters.
+                            If validChromosome = False Then
                                 Exit For
                             End If
-                            Exit For
                         End If
 
                     End If
@@ -571,6 +588,15 @@ Public Class MainForm
 
         Next
 
+    End Function
+
+    Private Function sameString(string1 As String, string2 As String)
+        sameString = False
+        If String.Equals(string1.Trim(), string2.Trim(), StringComparison.OrdinalIgnoreCase) Then
+            sameString = True
+        End If
+
+        Return sameString
     End Function
 
     'Function to check if value safely in betweeen two values
@@ -654,7 +680,9 @@ Public Class MainForm
 
     'Cancels search when clicked.
     Private Sub cancelBtn_Click(sender As Object, e As EventArgs) Handles cancelBtn.Click
-        cancelSearch = True
+        If cts IsNot Nothing Then
+            cts.cancel()
+        End If
     End Sub
 
     'Controls visibility of chart controls when the chart results checkbox is checked/unchecked
@@ -701,6 +729,10 @@ Public Class MainForm
                 Me.searchProgBar.Value = [number]
             Next
 
+            For Each contr As Control In Me.chartGrpBox.Controls
+                contr.Enabled = [bool]
+            Next
+
             'Re-enables search and reset buttons once the search is complete
             Me.resetBtn.Enabled = [bool]
             Me.searchBtn.Enabled = [bool]
@@ -723,26 +755,39 @@ Public Class MainForm
         ' If these threads are different, it returns true. 
 
         'Re-enables each of the filter groupboxes once the search is complete
-        If Me.criteriaPanel.InvokeRequired Then
-            Dim f As New setReset(AddressOf Reset)
-            Me.Invoke(f, New Object() {[text], [bool], [number], [bool2]})
-        Else
-            For Each ctrl As Control In Me.criteriaPanel.Controls
-                ctrl.Enabled = [bool]
-                Me.loadingLabel.Text = [text]
-                Me.searchProgBar.Value = [number]
-            Next
+        Try
+            If Me.criteriaPanel.InvokeRequired Then
+                Dim f As New setReset(AddressOf Reset)
+                Me.Invoke(f, New Object() {[text], [bool], [number], [bool2]})
+            Else
+                For Each ctrl As Control In Me.criteriaPanel.Controls
+                    ctrl.Enabled = [bool]
+                    Me.loadingLabel.Text = [text]
+                    Me.searchProgBar.Value = [number]
+                Next
 
-            'Re-enables search and reset buttons once the search is complete
-            Me.resetBtn.Enabled = [bool]
-            Me.searchBtn.Enabled = [bool]
-            Me.cancelBtn.Visible = [bool2]
-            Me.searchProgBar.Visible = [bool2]
-        End If
+                For Each contr As Control In Me.chartGrpBox.Controls
+                    contr.Enabled = [bool]
+                Next
+
+                'Re-enables search and reset buttons once the search is complete
+                Me.resetBtn.Enabled = [bool]
+                Me.searchBtn.Enabled = [bool]
+                Me.cancelBtn.Visible = [bool2]
+                Me.searchProgBar.Visible = [bool2]
+            End If
+
+        Catch e As Exception
+            Console.Write(e.InnerException.ToString())
+        End Try
     End Sub
 
     Private Sub threadCancelSafe()
-        Me.Reset("Search canceled", True, 0, False)
+        Try
+            Me.Reset("Search canceled", True, 0, False)
+        Catch e As Exception
+            Console.Write(e.InnerException.ToString())
+        End Try
     End Sub
 
     Private Sub barRadBtn_CheckedChanged(sender As Object, e As EventArgs) Handles barRadBtn.CheckedChanged
