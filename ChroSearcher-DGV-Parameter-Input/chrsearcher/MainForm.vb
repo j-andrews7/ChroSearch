@@ -22,7 +22,6 @@ Public Class MainForm
     Dim chartType As Integer
     Dim chartXTitle As String
     Dim chartYTitle As String
-    Dim cts As New CancellationTokenSource
 
     Dim searchList As New Generic.List(Of SearchCriteria)
 
@@ -241,12 +240,17 @@ Public Class MainForm
         helpForm.Show()
     End Sub
 
+
+    Private Shared searchMre As New ManualResetEvent(False)
+
+    Private Shared writeMre As New ManualResetEvent(False)
+
     'Searches the loaded file
     Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim searchThreads As New Generic.List(Of System.Threading.Thread)
         Dim batchOne As New Generic.List(Of String)
         Dim batchTwo As New Generic.List(Of String)
-        cts = New CancellationTokenSource()
+        cancelSearch = False
 
         'Prompts user to enter title of file to be created
         exportFD.Title = "Save as. . ."
@@ -316,7 +320,7 @@ Public Class MainForm
             'Waits for writing to finish so that charting won't be done till after all results are found.
             'Also handles if the cancel button is clicked
             Try
-                Await Task.Run(Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads, cts.Token), cts.Token)
+                Await Task.Run(Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads))
             Catch ex As OperationCanceledException
                 loadingLabel.Text = "Search canceled."
             Catch ex As Exception
@@ -344,23 +348,27 @@ Public Class MainForm
     End Sub
 
     'Writes the contents of the textbatches whenever they have
-    '>25000 results in them, then clears the textbatches and resumes the search threads.
+    '>50000 results in them, then clears the textbatches and resumes the search threads.
     Private Sub writePeriodically(fileName As String, batchOne As List(Of String), batchTwo As List(Of String), _
-                                  searchThreads As List(Of System.Threading.Thread), ct As CancellationToken)
+                                  searchThreads As List(Of System.Threading.Thread))
         Dim writer As New IO.StreamWriter(fileName, True)
         Dim searchFinished = False
         Dim searchWatch As Stopwatch = Stopwatch.StartNew()
-        Dim sThreadsSleep = False
+        Dim writeOut As Boolean = False
 
         Do
+            writeMre.WaitOne()
+            searchMre.Reset()
+            writeMre.Reset()
             'If search is canceled, clear the textbatches and safely reset UI
             If cancelSearch Then
                 Try
+                    progTimer.Stop()
                     batchOne.Clear()
                     batchTwo.Clear()
+                    chartResults = False
                     threadCancelSafe()
-                    progTimer.Stop()
-                    cancelSearch = False
+                    Exit Sub
                 Catch e As Exception
                     Console.Write(e.InnerException.ToString())
                 End Try
@@ -374,14 +382,21 @@ Public Class MainForm
                 End If
             Next
 
-            If batchOne.Count + batchTwo.Count >= 25000 Then
-                For Each thd As System.Threading.Thread In searchThreads
-                    Try
-                        thd.Suspend()
-                    Catch ex As ThreadStateException
+            If searchFinished Then
+                Exit Do
+            End If
 
-                    End Try
-                Next
+            Console.WriteLine(batchOne.Count.ToString() + " " + batchTwo.Count.ToString())
+            If batchOne.Count + batchTwo.Count >= 50000 Then
+                writeOut = True
+            End If
+
+            If batchOne.Count + batchTwo.Count < 25005 Then
+                searchMre.Set()
+            End If
+
+
+            If writeOut Then
 
                 chartResults = False
 
@@ -396,18 +411,20 @@ Public Class MainForm
                 batchOne.Clear()
                 batchTwo.Clear()
 
-                For Each thd As System.Threading.Thread In searchThreads
-                    Try
-                        thd.Resume()
-                    Catch ex As ThreadStateException
+                searchMre.Set()
 
-                    End Try
-                Next
+                'Reset writeOut so it doesn't continually cause the writer to write
+                writeOut = False
+
+
             End If
 
         Loop While searchFinished = False
 
-        'Better to just handle potential remaining results after the loop has ended
+        'Handle remaining results after loop has ended. 
+        searchMre.Set()
+
+        'Chart results if the user checked the chart results option
         If chartResults Then
             Dim temp() As String
 
@@ -418,7 +435,8 @@ Public Class MainForm
                 chartType = 1
             End If
 
-            'Writes the results to the export file, increases the searchHits variable and adds the data to the lists for the charts.
+            'Writes the results to the export file, increases the searchHits variable 
+            'and adds the data to the lists for the charts.
             Try
                 For Each result As String In batchOne
                     writer.WriteLine(result)
@@ -452,11 +470,11 @@ Public Class MainForm
 
         End If
 
-        'Clears the text batches after writing is complete
+        'Clears the text batches after writing is complete, stops the stopwatch, stops the timer updated the UI
+        'close the StreamWriter, and safely re-enable the appropriate controls with threadProcSafe().
         batchOne.Clear()
         batchTwo.Clear()
 
-        cts = Nothing
         searchWatch.Stop()
         progTimer.Stop()
         writer.Close()
@@ -490,8 +508,15 @@ Public Class MainForm
         Do While reader.Peek() > 0
             'next line
             currentLine = reader.ReadLine()
+
+            If textBatch.Count >= 25000 Then
+                writeMre.Set()
+                searchMre.Reset()
+                searchMre.WaitOne()
+            End If
+
             If cancelSearch Then
-                Thread.CurrentThread.Abort()
+                Exit Do
             End If
 
             'new function:
@@ -506,7 +531,8 @@ Public Class MainForm
 
         Loop
 
-        'Close out writer and reader and tell user file was saved
+        writeMre.Set()
+
         reader.Close()
 
     End Sub
@@ -680,9 +706,7 @@ Public Class MainForm
 
     'Cancels search when clicked.
     Private Sub cancelBtn_Click(sender As Object, e As EventArgs) Handles cancelBtn.Click
-        If cts IsNot Nothing Then
-            cts.cancel()
-        End If
+        cancelSearch = True
     End Sub
 
     'Controls visibility of chart controls when the chart results checkbox is checked/unchecked
@@ -762,9 +786,10 @@ Public Class MainForm
             Else
                 For Each ctrl As Control In Me.criteriaPanel.Controls
                     ctrl.Enabled = [bool]
-                    Me.loadingLabel.Text = [text]
-                    Me.searchProgBar.Value = [number]
                 Next
+
+                Me.loadingLabel.Text = [text]
+                Me.searchProgBar.Value = [number]
 
                 For Each contr As Control In Me.chartGrpBox.Controls
                     contr.Enabled = [bool]
