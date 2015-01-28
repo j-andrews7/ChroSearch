@@ -22,6 +22,9 @@ Public Class MainForm
     Dim chartType As Integer
     Dim chartXTitle As String
     Dim chartYTitle As String
+    Dim waitAll(1) As ManualResetEvent
+    Dim searchMREs(1) As ManualResetEvent
+    Dim threadDead(1) As Boolean
 
     Dim searchList As New Generic.List(Of SearchCriteria)
 
@@ -241,10 +244,6 @@ Public Class MainForm
     End Sub
 
 
-    Private Shared searchMre As New ManualResetEvent(False)
-
-    Private Shared writeMre As New ManualResetEvent(False)
-
     'Searches the loaded file
     Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim searchThreads As New Generic.List(Of System.Threading.Thread)
@@ -307,12 +306,20 @@ Public Class MainForm
             reader.Close()
             writer.Close()
 
+            'Set wait all events
+            waitAll(0) = New ManualResetEvent(False)
+            waitAll(1) = New ManualResetEvent(False)
+
+            searchMREs(0) = New ManualResetEvent(False)
+            searchMREs(1) = New ManualResetEvent(False)
+
+
             'Starts two search threads
             searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchOne, 0, 1)))
             searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchTwo, 1, 1)))
 
             For i As Integer = 0 To searchThreads.Count - 1
-                searchThreads(i).Name = "SearchProcess" & i.ToString()
+                searchThreads(i).Name = i.ToString()
                 searchThreads(i).IsBackground = True
                 searchThreads(i).Start()
             Next
@@ -357,9 +364,15 @@ Public Class MainForm
         Dim writeOut As Boolean = False
 
         Do
-            writeMre.WaitOne()
-            searchMre.Reset()
-            writeMre.Reset()
+
+            If searchFinished Then
+                Exit Do
+            End If
+
+            WaitHandle.WaitAll(waitAll)
+            waitAll(0).Reset()
+            waitAll(1).Reset()
+
             'If search is canceled, clear the textbatches and safely reset UI
             If cancelSearch Then
                 Try
@@ -376,23 +389,15 @@ Public Class MainForm
 
             searchFinished = True
             For Each thread As System.Threading.Thread In searchThreads
-                If thread.IsAlive = True Then
+                If Not threadDead(CInt(thread.Name())) Then
                     searchFinished = False
                     Exit For
                 End If
             Next
 
-            If searchFinished Then
-                Exit Do
-            End If
-
             Console.WriteLine(batchOne.Count.ToString() + " " + batchTwo.Count.ToString())
             If batchOne.Count + batchTwo.Count >= 50000 Then
                 writeOut = True
-            End If
-
-            If batchOne.Count + batchTwo.Count < 25005 Then
-                searchMre.Set()
             End If
 
 
@@ -411,7 +416,8 @@ Public Class MainForm
                 batchOne.Clear()
                 batchTwo.Clear()
 
-                searchMre.Set()
+                searchMREs(0).Set()
+                searchMREs(1).Set()
 
                 'Reset writeOut so it doesn't continually cause the writer to write
                 writeOut = False
@@ -422,8 +428,6 @@ Public Class MainForm
         Loop While searchFinished = False
 
         'Handle remaining results after loop has ended. 
-        searchMre.Set()
-
         'Chart results if the user checked the chart results option
         If chartResults Then
             Dim temp() As String
@@ -510,9 +514,9 @@ Public Class MainForm
             currentLine = reader.ReadLine()
 
             If textBatch.Count >= 25000 Then
-                writeMre.Set()
-                searchMre.Reset()
-                searchMre.WaitOne()
+                waitAll(CInt(Thread.CurrentThread.Name)).Set()
+                searchMREs(CInt(Thread.CurrentThread.Name)).WaitOne()
+                searchMREs(CInt(Thread.CurrentThread.Name)).Reset()
             End If
 
             If cancelSearch Then
@@ -531,9 +535,10 @@ Public Class MainForm
 
         Loop
 
-        writeMre.Set()
-
+        'Close out the reader and allow the writer thread to continue
         reader.Close()
+        threadDead(CInt(Thread.CurrentThread.Name)) = True
+        waitAll(CInt(Thread.CurrentThread.Name)).Set()
 
     End Sub
 
