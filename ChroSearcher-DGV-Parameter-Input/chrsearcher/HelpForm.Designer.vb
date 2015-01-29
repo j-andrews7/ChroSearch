@@ -66,7 +66,7 @@ Partial Class HelpForm
         Me.troubleTxtB.Name = "troubleTxtB"
         Me.troubleTxtB.ReadOnly = True
         Me.troubleTxtB.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical
-        Me.troubleTxtB.Size = New System.Drawing.Size(367, 255)
+        Me.troubleTxtB.Size = New System.Drawing.Size(386, 255)
         Me.troubleTxtB.TabIndex = 3
         Me.troubleTxtB.Text = resources.GetString("troubleTxtB.Text")
         '
@@ -84,7 +84,7 @@ Partial Class HelpForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ClientSize = New System.Drawing.Size(783, 341)
+        Me.ClientSize = New System.Drawing.Size(801, 341)
         Me.Controls.Add(Me.closeBtn)
         Me.Controls.Add(Me.troubleTxtB)
         Me.Controls.Add(Me.instrTxtB)

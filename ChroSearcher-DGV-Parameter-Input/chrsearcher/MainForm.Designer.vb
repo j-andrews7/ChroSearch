@@ -27,7 +27,6 @@ Partial Class MainForm
         Me.menuStrip = New System.Windows.Forms.MenuStrip()
         Me.FileMenu = New System.Windows.Forms.ToolStripMenuItem()
         Me.openMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.exportMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpMenu = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -74,7 +73,7 @@ Partial Class MainForm
         '
         'FileMenu
         '
-        Me.FileMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.openMenuItem, Me.exportMenuItem, Me.ExitToolStripMenuItem})
+        Me.FileMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.openMenuItem, Me.ExitToolStripMenuItem})
         Me.FileMenu.Name = "FileMenu"
         Me.FileMenu.Size = New System.Drawing.Size(37, 20)
         Me.FileMenu.Text = "File"
@@ -83,21 +82,14 @@ Partial Class MainForm
         '
         Me.openMenuItem.Name = "openMenuItem"
         Me.openMenuItem.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.N), System.Windows.Forms.Keys)
-        Me.openMenuItem.Size = New System.Drawing.Size(187, 22)
+        Me.openMenuItem.Size = New System.Drawing.Size(167, 22)
         Me.openMenuItem.Text = "Open File"
         Me.openMenuItem.ToolTipText = "Select input for program."
-        '
-        'exportMenuItem
-        '
-        Me.exportMenuItem.Name = "exportMenuItem"
-        Me.exportMenuItem.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.E), System.Windows.Forms.Keys)
-        Me.exportMenuItem.Size = New System.Drawing.Size(187, 22)
-        Me.exportMenuItem.Text = "Export Results"
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(187, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(167, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'HelpMenu
@@ -193,6 +185,7 @@ Partial Class MainForm
         'criteriaPanel
         '
         Me.criteriaPanel.AutoScroll = True
+        Me.criteriaPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.criteriaPanel.Location = New System.Drawing.Point(12, 53)
         Me.criteriaPanel.Name = "criteriaPanel"
         Me.criteriaPanel.Size = New System.Drawing.Size(814, 236)
@@ -353,7 +346,6 @@ Partial Class MainForm
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.menuStrip
-        Me.MaximizeBox = False
         Me.Name = "MainForm"
         Me.Text = "ChroSearch"
         Me.menuStrip.ResumeLayout(False)
@@ -370,7 +362,6 @@ Partial Class MainForm
     Friend WithEvents menuStrip As System.Windows.Forms.MenuStrip
     Friend WithEvents FileMenu As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents openMenuItem As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents exportMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents HelpMenu As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents AboutToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ExitToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem

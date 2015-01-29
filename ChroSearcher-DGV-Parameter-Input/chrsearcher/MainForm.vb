@@ -5,15 +5,22 @@ Imports System.Threading
 
 Public Class MainForm
 
-    'Declare variables
+    'Declaration of variables
+    'Input file and results file variables
     Dim helpForm As New HelpForm
-    Dim fileSizeKB As Integer
     Dim colCount As Integer
     Dim filepath As String
     Dim searchHits As Integer
+
+    'Search variables
+    Dim searchList As New Generic.List(Of SearchCriteria)
+
+    'Search progress variables
+    Dim fileSizeKB As Integer
     Dim lineBytes As Double
     Dim progBarValue As Double
-    Dim cancelSearch As Boolean
+
+    'Charting variables
     Dim chartResults As Boolean
     Dim dataCboSelection As Integer
     Dim labelCboSelection As Integer
@@ -22,11 +29,13 @@ Public Class MainForm
     Dim chartType As Integer
     Dim chartXTitle As String
     Dim chartYTitle As String
-    Dim waitAll(1) As ManualResetEvent
-    Dim searchMREs(1) As ManualResetEvent
-    Dim threadDead(1) As Boolean
 
-    Dim searchList As New Generic.List(Of SearchCriteria)
+    'Thread synchronization and canceling variables
+    Dim waitAll(2) As ManualResetEvent
+    Dim searchMREs(2) As ManualResetEvent
+    Dim threadDead(2) As Boolean
+    Dim cancelSearch As Boolean
+
 
     'Imports the file and returns the file path.
     Public Sub getFileImport()
@@ -47,15 +56,18 @@ Public Class MainForm
 
     'Allows user to drag and drop input file into program
     Private Sub MainForm_DragDrop(sender As System.Object, e As System.Windows.Forms.DragEventArgs) Handles Me.DragDrop
-        Dim files() As String = e.Data.GetData(DataFormats.FileDrop)
-        filepath = System.IO.Path.GetFullPath(files(0))
-        Dim fileExt As String = System.IO.Path.GetExtension(files(0))
+        Try
+            Dim files() As String = e.Data.GetData(DataFormats.FileDrop)
+            filepath = System.IO.Path.GetFullPath(files(0))
+            Dim fileExt As String = System.IO.Path.GetExtension(files(0))
 
-        loadingLabel.Visible = True
-        datasrcTxtB.Text = filepath
-        loadBGWorker.RunWorkerAsync(filepath)
-        loadPreviewDGV(filepath)
-
+            loadingLabel.Visible = True
+            datasrcTxtB.Text = filepath
+            loadBGWorker.RunWorkerAsync(filepath)
+            loadPreviewDGV(filepath)
+        Catch er As Exception
+            MsgBox("File loading error. \n Make sure the file is tab delimited!", MsgBoxStyle.OkOnly, "File Load Error")
+        End Try
     End Sub
 
     'Needed for drag and drop file inputs
@@ -68,23 +80,25 @@ Public Class MainForm
     'Imports file for use as input by program when user uses File -> Import path. Also displays file path 
     'in datasrcTxtB for reference.
     Private Sub openMenuItem_Click(sender As Object, e As EventArgs) Handles openMenuItem.Click
-        getFileImport() 'Sets the file path
+        Try
+            getFileImport() 'Sets the file path
 
-        'If filepath isn't blank, then loads the selected file using the loadBGWorker.
-        If filepath <> "" Then
-            Dim reader As New IO.StreamReader(filepath)
-            Dim line As New List(Of String)
-            Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
-            loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
-            loadingLabel.Text = "Loading...Please wait, this may take a moment."
-            datasrcTxtB.Text = filepath
+            'If filepath isn't blank, then loads the selected file using the loadBGWorker.
+            If filepath <> "" Then
+                Dim reader As New IO.StreamReader(filepath)
+                Dim line As New List(Of String)
+                Me.Cursor = Cursors.WaitCursor 'Changes the cursor to wait cursor so user knows file is loading
+                loadingLabel.Visible = True    'Makes loading label in statusbar visible to show user that file is loading
+                loadingLabel.Text = "Loading...Please wait, this may take a moment."
+                datasrcTxtB.Text = filepath
 
-            loadBGWorker.RunWorkerAsync(filepath)
+                loadBGWorker.RunWorkerAsync(filepath)
+                loadPreviewDGV(filepath)
+            End If
 
-            loadPreviewDGV(filepath)
-
-        End If
-
+        Catch er As Exception
+            MsgBox("File loading error. \n Make sure the file is tab delimited!", MsgBoxStyle.OkOnly, "File Load Error")
+        End Try
 
     End Sub
 
@@ -112,7 +126,7 @@ Public Class MainForm
 
     End Sub
 
-    'Dynamically generated textboxes
+    'Creates the dynamically generated textboxes
     Private Sub createSearchOptions(filePath As String)
         Try
             Using reader As New IO.StreamReader(filePath)
@@ -152,7 +166,7 @@ Public Class MainForm
         End Try
     End Sub
 
-    'Make search criteria's controls
+    'Create the controls for each search criteria
     Private Sub createSearchCriteria(criteriaName As String, xPosition As Integer, yPosition As Integer)
         Dim newSearchCriteria As New SearchCriteria(criteriaName, criteriaPanel, xPosition, yPosition)
         'Add to list
@@ -162,6 +176,7 @@ Public Class MainForm
         criteriaPanel.Refresh()
     End Sub
 
+    'Pulls the appropriate SearchCritera in the searchList based on either the name or index of the searchBox
     Private Function getSearchBox(index As Integer) As SearchCriteria
         getSearchBox = Nothing
 
@@ -184,7 +199,7 @@ Public Class MainForm
 
     'Shows "About" information from the help menu.
     Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
-        MsgBox("ChroSearch: Developed by the Payton Lab", , "About ChroSearch")
+        MsgBox("ChroSearch: Developed by the Payton Lab", MsgBoxStyle.OkOnly, "About ChroSearch")
     End Sub
 
 
@@ -244,16 +259,22 @@ Public Class MainForm
     End Sub
 
 
-    'Searches the loaded file
+    'Searches the input file when the Search button is clicked
     Private Async Sub searchBtn_Click(sender As Object, e As EventArgs) Handles searchBtn.Click
         Dim searchThreads As New Generic.List(Of System.Threading.Thread)
         Dim batchOne As New Generic.List(Of String)
         Dim batchTwo As New Generic.List(Of String)
+        Dim batchThree As New Generic.List(Of String)
         cancelSearch = False
+
+        'Resets the search threads dead variables so they don't just end immediately if previously canceled
+        For i As Integer = 0 To 2
+            threadDead(i) = False
+        Next
 
         'Prompts user to enter title of file to be created
         exportFD.Title = "Save as. . ."
-        exportFD.Filter = "Text Files(*.txt)|*.txt|All Files(*.*)|*.*" 'Limits user to only saving as .txt file
+        exportFD.Filter = "Text Files(*.txt;*.bed;*.tsv)|*.txt;*.bed;*.tsv|All Files (*.*)|*.*"
         Dim result = exportFD.ShowDialog()
 
         If result = DialogResult.Cancel Then 'Handles if Cancel Button of dialog is clicked
@@ -263,7 +284,8 @@ Public Class MainForm
             Dim writer As New IO.StreamWriter(exportFD.FileName, False) 'False (overwrite now)
             Dim reader As New IO.StreamReader(filepath)
 
-            searchHits = 0 'Reset search results
+            'Reset variables and enable/disable the appropriate controls
+            searchHits = 0
             progBarValue = 0
             searchProgBar.Visible = True
             searchResLabel.Visible = False
@@ -309,14 +331,17 @@ Public Class MainForm
             'Set wait all events
             waitAll(0) = New ManualResetEvent(False)
             waitAll(1) = New ManualResetEvent(False)
+            waitAll(2) = New ManualResetEvent(False)
 
             searchMREs(0) = New ManualResetEvent(False)
             searchMREs(1) = New ManualResetEvent(False)
+            searchMREs(2) = New ManualResetEvent(False)
 
 
             'Starts two search threads
-            searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchOne, 0, 1)))
-            searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchTwo, 1, 1)))
+            searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchOne, 0, 2)))
+            searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchTwo, 1, 2)))
+            searchThreads.Add(New System.Threading.Thread(Sub() Me.searchFile(batchThree, 2, 2)))
 
             For i As Integer = 0 To searchThreads.Count - 1
                 searchThreads(i).Name = i.ToString()
@@ -327,7 +352,7 @@ Public Class MainForm
             'Waits for writing to finish so that charting won't be done till after all results are found.
             'Also handles if the cancel button is clicked
             Try
-                Await Task.Run(Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, searchThreads))
+                Await Task.Run(Sub() Me.writePeriodically(exportFD.FileName, batchOne, batchTwo, batchThree, searchThreads))
             Catch ex As OperationCanceledException
                 loadingLabel.Text = "Search canceled."
             Catch ex As Exception
@@ -336,6 +361,12 @@ Public Class MainForm
 
             'If user selected charting, set the chart type and title based on the columns they selected.
             Try
+
+                'If too many results, don't bother charting them
+                If searchHits > 500 Then
+                    chartResults = False
+                End If
+
                 If chartResults Then
                     If chartType = 0 Then
                         chartXTitle = (labelCboBox.SelectedItem.ToString())
@@ -357,7 +388,8 @@ Public Class MainForm
     'Writes the contents of the textbatches whenever they have
     '>50000 results in them, then clears the textbatches and resumes the search threads.
     Private Sub writePeriodically(fileName As String, batchOne As List(Of String), batchTwo As List(Of String), _
-                                  searchThreads As List(Of System.Threading.Thread))
+                                  batchThree As List(Of String), searchThreads As List(Of System.Threading.Thread))
+
         Dim writer As New IO.StreamWriter(fileName, True)
         Dim searchFinished = False
         Dim searchWatch As Stopwatch = Stopwatch.StartNew()
@@ -365,28 +397,20 @@ Public Class MainForm
 
         Do
 
+            'Exits the Do loop if search finished is true
             If searchFinished Then
                 Exit Do
             End If
 
+            'Causes write thread to block until both search threads are finished or they each have 25000 results
             WaitHandle.WaitAll(waitAll)
+
+            'Resets the ManualResetEvents for the search threads to allow them to block the write
             waitAll(0).Reset()
             waitAll(1).Reset()
+            waitAll(2).Reset()
 
-            'If search is canceled, clear the textbatches and safely reset UI
-            If cancelSearch Then
-                Try
-                    progTimer.Stop()
-                    batchOne.Clear()
-                    batchTwo.Clear()
-                    chartResults = False
-                    threadCancelSafe()
-                    Exit Sub
-                Catch e As Exception
-                    Console.Write(e.InnerException.ToString())
-                End Try
-            End If
-
+            'Checks to see if both search threads are dead and sets searchFinished to true if they are.
             searchFinished = True
             For Each thread As System.Threading.Thread In searchThreads
                 If Not threadDead(CInt(thread.Name())) Then
@@ -395,16 +419,36 @@ Public Class MainForm
                 End If
             Next
 
-            Console.WriteLine(batchOne.Count.ToString() + " " + batchTwo.Count.ToString())
-            If batchOne.Count + batchTwo.Count >= 50000 Then
+            'If search is canceled, clear the textbatches and safely reset UI. Also set charting to false.
+            If cancelSearch Then
+                Try
+                    progTimer.Stop()
+                    batchOne.Clear()
+                    batchTwo.Clear()
+                    batchThree.Clear()
+                    chartResults = False
+                    cancelSearch = False
+                    threadCancelSafe()
+                    Exit Sub
+                Catch e As Exception
+                    Console.Write(e.InnerException.ToString())
+                End Try
+            End If
+
+            'Writes out the results if there are 75000 results in the textbatches
+            Console.WriteLine(batchOne.Count.ToString() + " " + batchTwo.Count.ToString() + " " + _
+                              batchThree.Count.ToString())
+
+            If batchOne.Count + batchTwo.Count + batchThree.Count >= 25000 Then
                 writeOut = True
             End If
 
-
+            'If >75000 results, then set chartResults to false so they won't be charted
             If writeOut Then
 
                 chartResults = False
 
+                'Writes each textbatch to the results file.
                 For Each result As String In batchOne
                     writer.WriteLine(result)
                     searchHits += 1
@@ -413,11 +457,20 @@ Public Class MainForm
                     writer.WriteLine(result)
                     searchHits += 1
                 Next
+                For Each result As String In batchThree
+                    writer.WriteLine(result)
+                    searchHits += 1
+                Next
+
+                'Clears the textbatches
                 batchOne.Clear()
                 batchTwo.Clear()
+                batchThree.Clear()
 
+                'Sets the ManualResetEvents for the search threads so that they may resume
                 searchMREs(0).Set()
                 searchMREs(1).Set()
+                searchMREs(2).Set()
 
                 'Reset writeOut so it doesn't continually cause the writer to write
                 writeOut = False
@@ -456,18 +509,30 @@ Public Class MainForm
                     dataList.Add(CDec(temp(dataCboSelection)))
                     labelList.Add(temp(labelCboSelection))
                 Next
+                For Each result As String In batchThree
+                    writer.WriteLine(result)
+                    searchHits += 1
+                    temp = Split(result, vbTab)
+                    dataList.Add(CDec(temp(dataCboSelection)))
+                    labelList.Add(temp(labelCboSelection))
+                Next
 
             Catch e As Exception
                 MsgBox(e.ToString(), , "Charting Error")
                 chartResults = False
             End Try
         Else
+
             'If not charting, just write the results to file and increase the searchHits variable
             For Each result As String In batchOne
                 writer.WriteLine(result)
                 searchHits += 1
             Next
             For Each result As String In batchTwo
+                writer.WriteLine(result)
+                searchHits += 1
+            Next
+            For Each result As String In batchThree
                 writer.WriteLine(result)
                 searchHits += 1
             Next
@@ -478,10 +543,17 @@ Public Class MainForm
         'close the StreamWriter, and safely re-enable the appropriate controls with threadProcSafe().
         batchOne.Clear()
         batchTwo.Clear()
+        batchThree.Clear()
 
         searchWatch.Stop()
         progTimer.Stop()
         writer.Close()
+
+        'Kills search threads if they're still running for some reason
+        For Each td As Thread In searchThreads
+            td = Nothing
+        Next
+
         threadProcSafe()
         MsgBox("Saved to: " + fileName + ". " + searchHits.ToString() + " search results found in " + _
                searchWatch.Elapsed.ToString() + ".")
@@ -496,12 +568,14 @@ Public Class MainForm
         chart.Show()
     End Sub
 
+    'Searches the file line by line
     Private Sub searchFile(textBatch As List(Of String), startPos As Integer, skipSize As Integer)
         Dim reader As New IO.StreamReader(filepath)
         Dim currentLine As String
 
         'Skip column headers
         currentLine = reader.ReadLine()
+        textBatch.Clear()
 
         'Startpos
         For i As Integer = 0 To startPos - 1
@@ -513,36 +587,50 @@ Public Class MainForm
             'next line
             currentLine = reader.ReadLine()
 
+            'If the search is canceled, then exit the Do loop and finish the sub.
+            If cancelSearch Then
+                reader.Close()
+                threadDead(CInt(Thread.CurrentThread.Name)) = True
+                waitAll(CInt(Thread.CurrentThread.Name)).Set()
+                Exit Sub
+            End If
+
+            'If the textBatch for the search thread is >=25000, then set the waitAll ManualResetEvent for the 
+            'thread so that the write thread may be unblocked. Makes the search thread block until the write thread
+            'sets the appropriate searchMREs ManualResetEvent for the thread to allow it to proceed. Then resets 
+            'that ManualResetEvent so that it will once again block the search thread when needed.
             If textBatch.Count >= 25000 Then
                 waitAll(CInt(Thread.CurrentThread.Name)).Set()
                 searchMREs(CInt(Thread.CurrentThread.Name)).WaitOne()
                 searchMREs(CInt(Thread.CurrentThread.Name)).Reset()
             End If
 
-            If cancelSearch Then
-                Exit Do
-            End If
 
-            'new function:
+            'Checks if the line is a match for the entered search parameters and adds them to the textBatch
+            'for the thread if it is.
             If validChromosome(currentLine) Then
                 textBatch.Add(currentLine)
             End If
 
-            'skip appropriately
+            'Skips a line so that the threads alternate.
             For i As Integer = 0 To skipSize - 1
                 reader.ReadLine()
             Next
 
         Loop
 
-        'Close out the reader and allow the writer thread to continue
+        'Close out the StreamReader
         reader.Close()
+
+        'Sets the thread to dead as it will end shortly
         threadDead(CInt(Thread.CurrentThread.Name)) = True
+
+        'Sets the corresponding waitAll ManualResetEvent for the thread to true so that the writer thread can proceed
         waitAll(CInt(Thread.CurrentThread.Name)).Set()
 
     End Sub
 
-    'This function searches through the current chromosome and checks if it follows what the user has searched for
+    'Searches through the current line and returns true/false if the line matches the search parameters or not
     Private Function validChromosome(chromString As String) As Boolean
         Dim readRow() As String
         validChromosome = True 'Start off as true
@@ -621,6 +709,7 @@ Public Class MainForm
 
     End Function
 
+    'Simply compares two strings to see if they match - ignores case
     Private Function sameString(string1 As String, string2 As String)
         sameString = False
         If String.Equals(string1.Trim(), string2.Trim(), StringComparison.OrdinalIgnoreCase) Then
@@ -630,7 +719,7 @@ Public Class MainForm
         Return sameString
     End Function
 
-    'Function to check if value safely in betweeen two values
+    'Checks if value is betweeen two values
     Private Function withinRange(value As Decimal, lower As Decimal, upper As Decimal, inclusiveLower As Boolean, inclusiveUpper As Boolean) As Boolean
         withinRange = False
         Dim lowerCheck As Boolean = False
@@ -652,7 +741,7 @@ Public Class MainForm
 
     End Function
 
-    'Takes care of the file loading so the program doesn't just hang when loading
+    'Takes care of the file loading
     Private Sub loadBGWorker_DoWork(sender As Object, e As DoWorkEventArgs) Handles loadBGWorker.DoWork
         Dim worker As BackgroundWorker = CType(sender, BackgroundWorker)
         Dim filepath As String = e.Argument 'Argument passed to determine filepath
@@ -697,7 +786,7 @@ Public Class MainForm
         chartGrpBox.Visible = True
     End Sub
 
-    'Updates progress bar every second
+    'Updates progress bar every second during search
     Private Sub progTimer_Tick(sender As Object, e As EventArgs) Handles progTimer.Tick
         If progBarValue < searchProgBar.Maximum Then
             searchProgBar.Value = CInt(progBarValue)
@@ -709,7 +798,7 @@ Public Class MainForm
         End If
     End Sub
 
-    'Cancels search when clicked.
+    'Handles canceling search when the Cancel button is clicked
     Private Sub cancelBtn_Click(sender As Object, e As EventArgs) Handles cancelBtn.Click
         cancelSearch = True
     End Sub
@@ -736,11 +825,13 @@ Public Class MainForm
     End Sub
 
 
-    'These three functions allow setting text of searchTxtB from outside UI thread
-    'and allow controls in the criteriaPanel to be re-enabled after search finishes
-    Delegate Sub setTextCallback([text] As String, [bool] As Boolean, [number] As Integer, [bool2] As Boolean, [num2] As Integer)
+    'These three functions allow UI update from outside the UI thread at search completion.
+    'Allow controls to be re-enabled after search finishes.
+    Delegate Sub setTextCallback([text] As String, [bool] As Boolean, [number] As Integer, _
+                                 [bool2] As Boolean, [num2] As Integer, [text2] As String)
 
-    Private Sub SetText(ByVal [text] As String, ByVal [bool] As Boolean, ByVal [number] As Integer, ByVal [bool2] As Boolean, ByVal [num2] As Integer)
+    Private Sub SetText(ByVal [text] As String, ByVal [bool] As Boolean, ByVal [number] As Integer, _
+                        ByVal [bool2] As Boolean, ByVal [num2] As Integer, ByVal [text2] As String)
 
         ' InvokeRequired required compares the thread ID of the 
         ' calling thread to the thread ID of the creating thread. 
@@ -749,7 +840,7 @@ Public Class MainForm
         'Re-enables each of the filter groupboxes once the search is complete
         If Me.criteriaPanel.InvokeRequired Then
             Dim f As New setTextCallback(AddressOf SetText)
-            Me.Invoke(f, New Object() {[text], [bool], [number], [bool2], [num2]})
+            Me.Invoke(f, New Object() {[text], [bool], [number], [bool2], [num2], [text2]})
         Else
             For Each ctrl As Control In Me.criteriaPanel.Controls
                 ctrl.Enabled = [bool]
@@ -766,11 +857,12 @@ Public Class MainForm
             Me.resetBtn.Enabled = [bool]
             Me.searchBtn.Enabled = [bool]
             Me.cancelBtn.Visible = [bool2]
+            Me.loadingLabel.Text = [text2]
         End If
     End Sub
 
     Private Sub threadProcSafe()
-        Me.SetText(searchHits.ToString(), True, searchProgBar.Maximum, False, 0)
+        Me.SetText(searchHits.ToString(), True, searchProgBar.Maximum, False, 0, "Search Complete!")
     End Sub
 
     'These three functions allow setting text of searchTxtB from outside UI thread

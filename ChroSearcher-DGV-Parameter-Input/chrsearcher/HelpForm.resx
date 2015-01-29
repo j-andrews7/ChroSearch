@@ -122,7 +122,7 @@
 
 2. Check each column for which you'd like to filter your results. For columns with text data, such as chromosomes, gene names, sample names, etc, select the "Text Search" option. For columns with numerical data, select the "Numerical Search" option.
 
-3. Enter your search parameters in the appropriate text boxes. If you would like to include the number you enter for numerical searches, check the "Inclusive" box under the field.
+3. Enter your search parameters in the appropriate text boxes. If you would like to include the number you enter for numerical searches, check the "Inclusive" box under the field. For text searches, multiple fields may be entered by separating the search terms by commas. Capitalization is ignored.
 
 4. Hit the "Search" button to search the file. You will be prompted to select a location and name for the search results file that will be generated. The search may take some time for large files (&gt;1 GB).</value>
   </data>
@@ -141,6 +141,13 @@ If the file takes less than 1 second to search, the progress bar won't be
 updated. The progress bar is also a rather rough estimate of the search
 progress. It may be off in either direction by 30 seconds or more depending
 on the size of the file and the variability of line lengths.
+
+"Graphing didn't work!"
+If your search returns &gt;500 results, charting is automatically canceled, as the
+resulting graph is simply a mess. Even with only a few hundred results,
+the x-axis labels may not display properly. ChroSearch's graphing functionality
+is meant to be used more as a quick visualization of relatively specific searches
+rather than as a means to create detailed, flexible graphs.
 
 Contact jared.andrews@wustl.edu for additional help and troubleshooting. </value>
   </data>

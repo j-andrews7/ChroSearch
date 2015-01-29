@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("ChroSearch")> 
-<Assembly: AssemblyDescription("")> 
+<Assembly: AssemblyDescription("Search any tab delimited file quickly")> 
 <Assembly: AssemblyCompany("")> 
 <Assembly: AssemblyProduct("ChroSearch")> 
 <Assembly: AssemblyCopyright("Copyright ©  2014-2015")> 
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.5.3.2")> 
-<Assembly: AssemblyFileVersion("1.5.3.2")> 
+<Assembly: AssemblyVersion("2.2.1.3")> 
+<Assembly: AssemblyFileVersion("2.2.1.3")> 
