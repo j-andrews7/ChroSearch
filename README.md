@@ -4,10 +4,10 @@ ChroSearch was developed as a data parsing solution for non-programmers. It is a
 
 This repository serves primarily as my own personal backup of the project files. 
 
-Future work:
-General refactor of code (VB.NET is not very well optimized for big data manipulation)
-Port to C# with Mono for cross-platform development
-Various cosmetic and UI changes
-Additional graphing functionality and improvements
+**Future work:**    
+General refactor of code (VB.NET is not very well optimized for big data manipulation).  
+Port to C# with Mono for cross-platform development.  
+Various cosmetic and UI changes.  
+Additional graphing functionality and improvements.  
 
 
